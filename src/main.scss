@@ -1,0 +1,24 @@
+#app {
+  max-width: min(100%, 330px);
+  margin: 0 auto
+}
+
+h1, h2, h3 {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 48px;
+}
+
+section {
+  margin-bottom: 0.5rem
+}
+
+.no-select {
+  user-select: none;
+}
+
+.game-screen {
+  margin-top: 10vh;
+}
