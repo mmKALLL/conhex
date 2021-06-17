@@ -1,10 +1,27 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "lib": ["DOM"],
+    "lib": ["DOM", "es2018"],
+    "esModuleInterop": true, // Enables "import React from 'react'" without prefix when "jsx": "react"
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react",
     "rootDir": ".",
-    "outDir": "build"
+    "outDir": "build",
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "pretty": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2018"
   },
+  "exclude": [
+    "node_modules"
+  ],
   "include": [
     "src/**/*.ts",
     "test/**/*.ts"
