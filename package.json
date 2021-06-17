@@ -9,7 +9,7 @@
         "node": ">=12.20.0"
     },
     "scripts": {
-        "dist": "yarn build",
+        "dist": "yarn install && yarn build",
         "start": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel src/index.html --open'",
         "build": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"public\"'",
         "test": "echo \"Error: no test specified\" && exit 1",
