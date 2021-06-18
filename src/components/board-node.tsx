@@ -1,27 +1,40 @@
-import * as React from 'react'
+import React from 'react'
 
 export type Point = { x: number; y: number }
-export type NodeState = 'empty' | 'black' | 'white'
+export type NodeState = 'empty' | 'first' | 'second'
 export type Node = Point & { state: NodeState }
 export type BoardNodeProps = Node & {
   radius: number
   onClick: (e: React.MouseEvent<SVGCircleElement, MouseEvent>) => void
 }
 
-export function BoardNode({ x, y, state, radius, onClick }: BoardNodeProps) {
+export function BoardNode({
+  x,
+  y,
+  state,
+  radius,
+  onClick,
+  ...props
+}: BoardNodeProps & React.SVGAttributes<SVGCircleElement>) {
   return (
     <>
       <circle
-        onClick={e => {
-          onClick(e)
-        }}
+        cx={x}
+        cy={y}
+        r={radius * 1.6}
+        onClick={e => onClick(e)}
+        strokeWidth={12}
+        fill="#fff"
+        style={{ opacity: 0, cursor: 'pointer' }}
+      />
+      <circle
         cx={x}
         cy={y}
         r={radius}
-        stroke="#000"
-        {...(state === 'black'
-          ? { fill: '#000' }
-          : { stroke: '#000', strokeWidth: 2, fill: '#fff' })}
+        {...props}
+        fill={state === 'first' ? '#00f' : state === 'second' ? '#f00' : '#fff'}
+        style={{ cursor: 'pointer' }}
+        onClick={e => onClick(e)}
       />
     </>
   )
