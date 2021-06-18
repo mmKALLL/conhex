@@ -1,10 +1,10 @@
-import * as React from 'react'
+import React from 'react'
 
 export function Header() {
   return (
     <>
       <h1>ConHex</h1>
-      <h4>Connection game by Michail Antonow</h4>
+      <h3>Connection game by Michail Antonow</h3>
     </>
   )
 }
