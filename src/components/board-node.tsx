@@ -1,8 +1,6 @@
 import React from 'react'
+import { Node } from '../utils/board-utils'
 
-export type Point = { x: number; y: number }
-export type NodeState = 'empty' | 'first' | 'second'
-export type Node = Point & { state: NodeState }
 export type BoardNodeProps = Node & {
   radius: number
   onClick: (e: React.MouseEvent<SVGCircleElement, MouseEvent>) => void

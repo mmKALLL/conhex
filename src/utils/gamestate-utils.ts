@@ -1,21 +1,17 @@
-const test: () => void = () => console.log('hello world')
-test()
+import { Node } from "./board-utils"
 
 type Player = {
   name: string
   rating: number
-}
-
-type Move = {
-  x: number
-  y: number
+  wins: Player[]
+  losses: Player[]
 }
 
 type GameState = {
-  type: 'ongoing' | 'review'
+  type: 'ongoing' | 'ended' | 'review'
   players: Player[]
   boardSize: number
-  mainBranch: Move[]
+  mainBranch: Node[]
 }
 
 const readGame = (sgfText: string): GameState => {

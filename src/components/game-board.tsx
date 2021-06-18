@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { BoardNode, Node } from './board-node'
+import { BoardNode } from './board-node'
+import { Node, defaultNodePoints } from '../utils/board-utils'
 
 export type GameBoardProps = {
   size: number // in number of tiles surrounding the perimeter of the board
@@ -117,82 +118,6 @@ export function GameBoard({ size }: GameBoardProps) {
     </section>
   )
 }
-
-const getInitialTiles = (size: number =  5) => {
-  return
-}
-
-const defaultNodePoints: Node[] = [
-  { x: 100, y: 1100, state: 'empty' },
-  { x: 100, y: 100, state: 'empty' },
-  { x: 200, y: 900, state: 'empty' },
-  { x: 200, y: 800, state: 'empty' },
-  { x: 200, y: 700, state: 'empty' },
-  { x: 200, y: 600, state: 'empty' },
-  { x: 200, y: 500, state: 'empty' },
-  { x: 200, y: 400, state: 'empty' },
-  { x: 200, y: 300, state: 'empty' },
-  { x: 300, y: 1000, state: 'empty' },
-  { x: 300, y: 800, state: 'empty' },
-  { x: 300, y: 700, state: 'empty' },
-  { x: 300, y: 600, state: 'empty' },
-  { x: 300, y: 500, state: 'empty' },
-  { x: 300, y: 400, state: 'empty' },
-  { x: 300, y: 200, state: 'empty' },
-  { x: 400, y: 1000, state: 'empty' },
-  { x: 400, y: 900, state: 'empty' },
-  { x: 400, y: 700, state: 'empty' },
-  { x: 400, y: 600, state: 'empty' },
-  { x: 400, y: 500, state: 'empty' },
-  { x: 400, y: 300, state: 'empty' },
-  { x: 400, y: 200, state: 'empty' },
-  { x: 500, y: 1000, state: 'empty' },
-  { x: 500, y: 900, state: 'empty' },
-  { x: 500, y: 800, state: 'empty' },
-  { x: 500, y: 600, state: 'empty' },
-  { x: 500, y: 400, state: 'empty' },
-  { x: 500, y: 300, state: 'empty' },
-  { x: 500, y: 200, state: 'empty' },
-  { x: 600, y: 1000, state: 'empty' },
-  { x: 600, y: 900, state: 'empty' },
-  { x: 600, y: 800, state: 'empty' },
-  { x: 600, y: 700, state: 'empty' },
-  { x: 600, y: 600, state: 'empty' },
-  { x: 600, y: 500, state: 'empty' },
-  { x: 600, y: 400, state: 'empty' },
-  { x: 600, y: 300, state: 'empty' },
-  { x: 600, y: 200, state: 'empty' },
-  { x: 700, y: 1000, state: 'empty' },
-  { x: 700, y: 900, state: 'empty' },
-  { x: 700, y: 800, state: 'empty' },
-  { x: 700, y: 600, state: 'empty' },
-  { x: 700, y: 400, state: 'empty' },
-  { x: 700, y: 300, state: 'empty' },
-  { x: 700, y: 200, state: 'empty' },
-  { x: 800, y: 1000, state: 'empty' },
-  { x: 800, y: 900, state: 'empty' },
-  { x: 800, y: 700, state: 'empty' },
-  { x: 800, y: 600, state: 'empty' },
-  { x: 800, y: 500, state: 'empty' },
-  { x: 800, y: 300, state: 'empty' },
-  { x: 800, y: 200, state: 'empty' },
-  { x: 900, y: 1000, state: 'empty' },
-  { x: 900, y: 800, state: 'empty' },
-  { x: 900, y: 700, state: 'empty' },
-  { x: 900, y: 600, state: 'empty' },
-  { x: 900, y: 500, state: 'empty' },
-  { x: 900, y: 400, state: 'empty' },
-  { x: 900, y: 200, state: 'empty' },
-  { x: 1000, y: 900, state: 'empty' },
-  { x: 1000, y: 800, state: 'empty' },
-  { x: 1000, y: 700, state: 'empty' },
-  { x: 1000, y: 600, state: 'empty' },
-  { x: 1000, y: 500, state: 'empty' },
-  { x: 1000, y: 400, state: 'empty' },
-  { x: 1000, y: 300, state: 'empty' },
-  { x: 1100, y: 1100, state: 'empty' },
-  { x: 1100, y: 100, state: 'empty' },
-]
 
 /* prettier-ignore */
 const BoardBase5 = ({strokeWidth}: {strokeWidth: number}) => {
