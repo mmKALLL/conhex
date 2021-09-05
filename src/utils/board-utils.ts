@@ -1,9 +1,10 @@
 export type Point = { x: number; y: number }
-export type NodeState = 'empty' | 'first' | 'second'
+export type NodeState = 'empty' | 'first' | 'second' | 'fake'
 export type Node = Point & { state: NodeState }
 export type Tile = {
   position: Point
-  nodes: Point[]
+  nodes: Node[]
+  fakeNodes: Node[] // used for rendering an area for the edges
   neighbors: Point[] // positions of neighboring tiles
   state: NodeState
 }
@@ -11,12 +12,17 @@ export type Tile = {
 const emptyTile: Tile = {
   position: { x: 0, y: 0 },
   nodes: [],
+  fakeNodes: [],
   neighbors: [],
   state: 'empty' as const,
 }
 
 // Rotate a point 90 degrees clockwise
-const rotateClockwise = (position: Point, rotations: number, size: number = 5): Point => {
+const rotateClockwise = <T extends Point>(
+  position: T,
+  rotations: number,
+  size: number = 5
+): T => {
   const rotate = (p: Point) => ({
     x: p.y,
     y: -p.x,
@@ -28,7 +34,7 @@ const rotateClockwise = (position: Point, rotations: number, size: number = 5): 
   const newPosition = Array(rotations)
     .fill(0)
     .reduce<Point>((acc, _) => rotate(acc), offsetPosition)
-  return { x: newPosition.x + offset, y: newPosition.y + offset }
+  return { ...position, x: newPosition.x + offset, y: newPosition.y + offset }
 }
 
 const isPointWithinRect = (
@@ -53,10 +59,13 @@ const getTileNodes = (
   rectWidth: number,
   rectHeight: number,
   size: number
-): Pick<Tile, 'position' | 'nodes'>[] => {
+): Pick<Tile, 'position' | 'nodes' | 'fakeNodes'>[] => {
   return positions.map((p) => ({
     position: p,
     nodes: defaultNodePoints.filter((node) =>
+      isPointWithinRect(node, p, rectWidth, rectHeight, size)
+    ),
+    fakeNodes: fakeNodePoints.filter((node) =>
       isPointWithinRect(node, p, rectWidth, rectHeight, size)
     ),
   }))
@@ -86,10 +95,12 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   const horizTileNodes = getTileNodes(horizPoints, 2, 1, size)
 
   // Finally rotate the whole thing
-  const allTiles = diagTileNodes.concat(horizTileNodes)
+  const allTiles = diagTileNodes
+    .concat(horizTileNodes)
   const rotatedTiles = allTiles.map((t) => ({
     position: rotateClockwise(t.position, rotations, size),
-    nodes: t.nodes.map((n) => rotateClockwise(n, rotations, size)),
+    nodes: t.nodes.map<Node>((n) => rotateClockwise(n, rotations, size)),
+    fakeNodes: t.fakeNodes.map<Node>((n) => rotateClockwise(n, rotations, size)),
   }))
 
   // Add initial state to each tile
@@ -109,11 +120,11 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
     ...emptyTile,
     position: { x: size + 1, y: size + 1 },
     nodes: [
-      { x: size + 1, y: size },
-      { x: size, y: size + 1 },
-      { x: size + 1, y: size + 1 },
-      { x: size + 2, y: size + 1 },
-      { x: size + 1, y: size + 2 },
+      { x: size + 1, y: size, state: 'empty' },
+      { x: size, y: size + 1, state: 'empty' },
+      { x: size + 1, y: size + 1, state: 'empty' },
+      { x: size + 2, y: size + 1, state: 'empty' },
+      { x: size + 1, y: size + 2, state: 'empty' },
     ],
   })
 
@@ -139,6 +150,18 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
   return tilesWithNeighbors
 }
 
+// Fake nodes first, these are not playable but needed for rendering edges
+const fakeEdge: Node[] = [
+  { x: 3, y: 1, state: 'fake' },
+  { x: 5, y: 1, state: 'fake' },
+  { x: 7, y: 1, state: 'fake' },
+  { x: 9, y: 1, state: 'fake' },
+]
+const fakeNodePoints: Node[] = [0, 1, 2, 3]
+  .map((rotations) => fakeEdge.map((p) => rotateClockwise(p, rotations, BOARD_SIZE)))
+  .flat(1)
+
+// Then the playable points
 export const defaultNodePoints: Node[] = [
   { x: 1, y: 11, state: 'empty' },
   { x: 1, y: 1, state: 'empty' },
