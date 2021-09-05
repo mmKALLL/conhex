@@ -18,6 +18,25 @@ export function GameBoard({ size }: GameBoardProps) {
   const boardScale = 1
   const coordinateMultiplier = 100 // based on rendering the svg
 
+  const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node) => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.nativeEvent.preventDefault()
+    e.nativeEvent.stopImmediatePropagation()
+    if (
+      // no existing move with same coordinates
+      moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
+    ) {
+      setMoves([
+        ...moves,
+        {
+          ...node,
+          state: lastMove && lastMove.state === 'first' ? 'second' : 'first',
+        },
+      ])
+    }
+  }
+
   return (
     <section>
       <section>Hello, nice board incoming</section>
@@ -31,7 +50,7 @@ export function GameBoard({ size }: GameBoardProps) {
           transform={`scale(${boardScale})`}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <BoardBase5 strokeWidth={strokeWidth} />
+          <BoardBase5 strokeWidth={strokeWidth} tiles={tiles} />
 
           {/** Selection border */}
           {moves.length > 0 && lastMove && (
@@ -41,10 +60,11 @@ export function GameBoard({ size }: GameBoardProps) {
               r={radius * 1.8}
               stroke="#ffffff"
               strokeWidth="0"
-              fill="#00FF00"
+              fill={colors.selected}
               opacity="0.35"
             />
           )}
+
           {/* Empty nodes with click handler */}
           {defaultNodePoints.map((n, i) => (
             <BoardNode
@@ -55,34 +75,18 @@ export function GameBoard({ size }: GameBoardProps) {
               radius={radius}
               stroke="#808080"
               strokeWidth={strokeWidth}
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                e.nativeEvent.preventDefault()
-                e.nativeEvent.stopImmediatePropagation()
-                const node = defaultNodePoints[i]
-                if (
-                  node &&
-                  moves.findIndex((move) => move.x === n.x && move.y === n.y) === -1 // no existing move with same coordinates
-                ) {
-                  setMoves([
-                    ...moves,
-                    {
-                      ...node,
-                      state: lastMove && lastMove.state === 'first' ? 'second' : 'first',
-                    },
-                  ])
-                }
-              }}
+              onClick={(e) => handleMove(e, n)}
             />
           ))}
 
+          {/* Circles for existing moves */}
           {moves.map((n, i) => (
             <BoardNode
               key={i + '-move'}
+              state={n.state}
               x={n.x * coordinateMultiplier}
               y={n.y * coordinateMultiplier}
-              state={n.state}
+              fill={colors[n.state]}
               radius={radius}
               stroke="#808080"
               strokeWidth={strokeWidth}
