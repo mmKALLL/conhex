@@ -45,7 +45,7 @@ const isPointWithinRect = (
   point.y <= rect.y + rectHeight &&
   // Is not the dead center point (to exclude center of diagonals tiles' bounding box)
   !(point.x === rect.x + rectWidth / 2 && point.y === rect.y + rectHeight / 2) &&
-  // Is not the center tile center point (since it might be inside bounding box)
+  // Is not the center tile center point (since it might be inside diagonal tiles' bounding box)
   !(point.x === size + 1 && point.y === size + 1)
 
 const getTileNodes = (
@@ -118,25 +118,23 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
   })
 
   // Then we find each tile's unique neighbors by checking if they share a node
-  const tilesWithNeighbors: Tile[] = tiles.map<Tile>((tile) => {
-    const neighborPositions = tiles
+  const tilesWithNeighbors: Tile[] = tiles.map<Tile>((tile) => ({
+    ...tile,
+    neighbors: tiles
       .filter((tile2) =>
         tile.nodes.some((n) => tile2.nodes.some((n2) => n.x === n2.x && n.y === n2.y))
       )
       .map((t) => t.position)
-    const uniqueNeighbors = neighborPositions.reduce<Point[]>(
-      (acc, cur) =>
-        (cur.x === tile.position.x && cur.y === tile.position.y) || // remove the original tile to prevent recursion
-        acc.some((p) => p.x === cur.x && p.y === cur.y) // remove duplicates
-          ? acc
-          : acc.concat([cur]),
-      []
-    )
-    return {
-      ...tile,
-      neighbors: uniqueNeighbors,
-    }
-  })
+      .reduce<Point[]>(
+        (acc, cur) =>
+          // Remove the original tile and duplicate neighbors to prevent recursion
+          (cur.x === tile.position.x && cur.y === tile.position.y) ||
+          acc.some((p) => p.x === cur.x && p.y === cur.y)
+            ? acc
+            : acc.concat([cur]),
+        []
+      ),
+  }))
 
   return tilesWithNeighbors
 }
