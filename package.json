@@ -11,7 +11,7 @@
     "scripts": {
         "dist": "yarn install && yarn build",
         "start": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel src/index.html --open'",
-        "build": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"public\"'",
+        "build": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"docs\"'",
         "test": "echo \"Error: no test specified\" && exit 1",
         "compile": "tsc"
     },
