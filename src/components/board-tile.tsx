@@ -1,12 +1,14 @@
 import React from 'react'
-import { Tile } from '../utils/board-utils'
+import { Point, Tile } from '../utils/board-utils'
 
-export type BoardTileProps = Tile & { scale: number }
+export type BoardTileProps = Tile & { scale: number; boardCenter: Point }
 
 export function BoardTile({
+  center,
   nodes,
   fakeNodes,
   scale,
+  boardCenter,
   stroke,
   strokeWidth,
   fill,
@@ -17,6 +19,7 @@ export function BoardTile({
         points={nodes
           .concat(fakeNodes)
           .slice()
+          .filter((node) => !(node.x === boardCenter.x && node.y === boardCenter.y)) // remove board center node from vertex rendering
           .sort(
             (a, b) =>
               // Return clockwise ordering using cross product of vectors (center -> a) x (center -> b), see https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order

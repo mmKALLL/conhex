@@ -3,14 +3,18 @@ export type NodeState = 'empty' | 'first' | 'second' | 'fake'
 export type Node = Point & { state: NodeState }
 export type Tile = {
   position: Point
+  center: Point // not actual center; approximate needed for constructing convex hull when rendering
   nodes: Node[]
   fakeNodes: Node[] // used for rendering an area for the edges
   neighbors: Point[] // positions of neighboring tiles
   state: NodeState
 }
 
+const BOARD_SIZE = 5
+
 const emptyTile: Tile = {
   position: { x: 0, y: 0 },
+  center: { x: 0, y: 0 },
   nodes: [],
   fakeNodes: [],
   neighbors: [],
@@ -97,8 +101,13 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   // Finally rotate the whole thing
   const allTiles = diagTileNodes
     .concat(horizTileNodes)
+    .map((tile) => ({
+      ...tile,
+      center: { x: tile.position.x + 1, y: tile.position.y + 0.5 },
+    }))
   const rotatedTiles = allTiles.map((t) => ({
     position: rotateClockwise(t.position, rotations, size),
+    center: rotateClockwise(t.center, rotations, size),
     nodes: t.nodes.map<Node>((n) => rotateClockwise(n, rotations, size)),
     fakeNodes: t.fakeNodes.map<Node>((n) => rotateClockwise(n, rotations, size)),
   }))
@@ -119,6 +128,7 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
   tiles.push({
     ...emptyTile,
     position: { x: size + 1, y: size + 1 },
+    center: { x: size + 2, y: size + 2 },
     nodes: [
       { x: size + 1, y: size, state: 'empty' },
       { x: size, y: size + 1, state: 'empty' },

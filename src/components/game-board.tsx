@@ -73,6 +73,7 @@ export function GameBoard({ size }: GameBoardProps) {
             strokeWidth={strokeWidth}
             tiles={tiles}
             scale={scale}
+            boardCenter={{ x: 6, y: 6 }}
           />
 
           {/** Selection border */}
@@ -124,7 +125,7 @@ export function GameBoard({ size }: GameBoardProps) {
 }
 
 /* prettier-ignore */
-const BoardBase5 = ({ strokeWidth, tiles }: { strokeWidth: number, tiles: Tile[] }) => {
+const BoardBase5 = ({ strokeWidth, tiles, scale, boardCenter }: { strokeWidth: number, tiles: Tile[], scale: number, boardCenter: Point }) => {
   return <>
     {tiles.map((tile, i) =>
       <BoardTile key={i} {...tile} scale={scale} boardCenter={boardCenter} stroke={colors.stroke} strokeWidth={strokeWidth} fill={tileColors[tile.state]} />
