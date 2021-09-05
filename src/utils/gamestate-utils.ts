@@ -19,7 +19,7 @@ const readGame = (sgfText: string): GameState => {
   let [header, remaining] = baseText.split(/(?<=FF\[CONHEX\])/)
   console.log(header, '\n', remaining)
 
-  if (!header.toLowerCase().includes('conhex')) {
+  if (!header?.toLowerCase().includes('conhex')) {
     throw new Error(
       'Loaded game does not match expected format (SGF FF field is not CONHEX).'
     )
