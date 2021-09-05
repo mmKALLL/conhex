@@ -1,6 +1,23 @@
 import React, { useState } from 'react'
 import { BoardNode } from './board-node'
-import { Node, defaultNodePoints, getInitialTiles, Tile } from '../utils/board-utils'
+import {
+  Node,
+  defaultNodePoints,
+  getInitialTiles,
+  Tile,
+  NodeState,
+} from '../utils/board-utils'
+
+type ColorKey = NodeState | 'vertex' | 'background' | 'selected'
+
+const colors: Record<ColorKey, string> = {
+  empty: '#FFF',
+  first: '#F00', // first player move
+  second: '#00F', // second player move
+  vertex: '#888', // strokes or "lines" surrounding tiles
+  background: '#FFF',
+  selected: '#0F0',
+}
 
 export type GameBoardProps = {
   size: number // in number of tiles surrounding the perimeter of the board
@@ -101,7 +118,7 @@ export function GameBoard({ size }: GameBoardProps) {
 }
 
 /* prettier-ignore */
-const BoardBase5 = ({ strokeWidth }: { strokeWidth: number }) => {
+const BoardBase5 = ({ strokeWidth, tiles }: { strokeWidth: number, tiles: Tile[] }) => {
   return <>
     <polygon points="0,0 1200,0 0,1200 1200,1200" style={{ fill: '#A0A0FF', stroke: '#808080', strokeWidth }}></polygon>
     <polygon points="0,0 0,1200 1200,0 1200,1200" style={{ fill: '#FFA0A0', stroke: '#808080', strokeWidth }}></polygon>
