@@ -6,9 +6,18 @@ import {
   getInitialTiles,
   Tile,
   NodeState,
+  Point,
 } from '../utils/board-utils'
+import { BoardTile } from './board-tile'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
+
+const tileColors: Record<NodeState, string> = {
+  empty: '#FFF',
+  first: '#FAA', // first player move
+  second: '#AAF', // second player move
+  fake: '#000',
+}
 
 const colors: Record<ColorKey, string> = {
   empty: '#FFF',
@@ -17,6 +26,7 @@ const colors: Record<ColorKey, string> = {
   stroke: '#888', // stroke color for vertices or "lines" surrounding tiles
   background: '#FFF',
   selected: '#0F0',
+  fake: '#000',
 }
 
 export type GameBoardProps = {
@@ -96,6 +106,7 @@ export function GameBoard({ size }: GameBoardProps) {
               x={n.x * scale}
               y={n.y * scale}
               state={n.state}
+              fill={colors[n.state]}
               radius={radius}
               stroke="#808080"
               strokeWidth={strokeWidth}
@@ -127,6 +138,8 @@ export function GameBoard({ size }: GameBoardProps) {
 /* prettier-ignore */
 const BoardBase5 = ({ strokeWidth, tiles, scale, boardCenter }: { strokeWidth: number, tiles: Tile[], scale: number, boardCenter: Point }) => {
   return <>
+    <polygon points="0,0 0,1200 1200,0 1200,1200" style={{ fill: tileColors.first, stroke: colors.stroke, strokeWidth }}></polygon>
+    <polygon points="0,0 1200,0 0,1200 1200,1200" style={{ fill: tileColors.second, stroke: colors.stroke, strokeWidth }}></polygon>
     {tiles.map((tile, i) =>
       <BoardTile key={i} {...tile} scale={scale} boardCenter={boardCenter} stroke={colors.stroke} strokeWidth={strokeWidth} fill={tileColors[tile.state]} />
     )}
