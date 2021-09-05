@@ -5,7 +5,7 @@ export function GameScreen({}) {
   return (
     <div className="game-screen">
       <p>More text</p>
-      <GameBoard size={3} />
+      <GameBoard size={5} />
     </div>
   )
 }
