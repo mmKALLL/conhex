@@ -7,24 +7,11 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({}: GameBoardProps) {
-  // const initialNodes = Array.from(Array(20), (_, i) => ({
-  //   x: Math.floor(Math.random() * i * 1.5) + 2,
-  //   y: Math.floor(Math.random() * i * 1.5) + 2,
-  //   state: Math.random() < 0.5 ? 'second' : 'first',
-  // }))
-
   const [moves, setMoves] = useState<Node[]>([])
   const lastMove = moves[moves.length - 1]
 
-  // const setNode = (index: number, newState: NodeState) => {
-  //   const tempNodes = nodes.slice()
-  //   tempNodes[index].state = newState
-  //   setNodes(tempNodes)
-  // }
-
   const radius = 28
   const strokeWidth = 7
-  // const getNodePosition = (val: number) => val * (radius * 2 + margin)
 
   const boardSize = 600
   const boardScale = 1
@@ -44,7 +31,6 @@ export function GameBoard({}: GameBoardProps) {
           xmlns="http://www.w3.org/2000/svg"
         >
           <BoardBase5 strokeWidth={strokeWidth} />
-          {/* <rect width="100%" height="100%" stroke="#000" strokeWidth="2" fill="none" /> */}
 
           {/** Selection border */}
           {moves.length > 0 && lastMove && (
@@ -58,6 +44,7 @@ export function GameBoard({}: GameBoardProps) {
               opacity="0.35"
             />
           )}
+          {/* Empty nodes with click handler */}
           {defaultNodePoints.map((n, i) => (
             <BoardNode
               key={i}
