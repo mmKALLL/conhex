@@ -54,14 +54,27 @@ export function GameBoard({ size }: GameBoardProps) {
       // no existing move with same coordinates
       moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
     ) {
-      const state = lastMove && lastMove.state === 'first' ? 'second' : 'first'
-      setMoves([...moves, { ...node, state }])
+      const newState = lastMove && lastMove.state === 'first' ? 'second' : 'first'
+      setMoves([...moves, { ...node, state: newState }])
 
-      const newTiles = tiles.map((tile) => {
-        if (true) {
-        }
-        return tile
-      })
+      const newTiles = tiles
+        // Update tiles' individual nodes' state
+        .map((tile) => ({
+          ...tile,
+          nodes: tile.nodes.map((n) => ({
+            ...n,
+            state: n.x === node.x && n.y === node.y ? newState : n.state,
+          })),
+        }))
+        // Update tile state if majority has been won for the first time
+        .map((tile) => ({
+          ...tile,
+          state:
+            tile.state === 'empty' &&
+            tile.nodes.filter((n) => n.state === newState).length >= tile.nodes.length / 2
+              ? newState
+              : tile.state,
+        }))
       setTiles(newTiles)
     }
   }
