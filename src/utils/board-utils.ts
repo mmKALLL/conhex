@@ -1,7 +1,18 @@
 export type Point = { x: number; y: number }
 export type NodeState = 'empty' | 'first' | 'second'
 export type Node = Point & { state: NodeState }
-export type Tile = { position: Point; neighbors: Tile[]; nodes: Point[] }
+export type Tile = {
+  position: Point
+  neighbors: Tile[]
+  nodes: Point[]
+  state: NodeState
+}
+
+const emptyTile: Tile = {
+  position: { x: 0, y: 0 },
+  state: 'empty' as const,
+  neighbors: [] as Tile[],
+}
 
 // Rotate a point 90 degrees clockwise
 const rotateClockwise = (position: Point, rotations: number, size: number = 5): Point => {
@@ -35,15 +46,15 @@ const getTileNodes = (
   rectWidth: number,
   rectHeight: number
 ): Pick<Tile, 'position' | 'nodes'>[] => {
-  return positions.map(p => ({
+  return positions.map((p) => ({
     position: p,
-    nodes: defaultNodePoints.filter(node =>
+    nodes: defaultNodePoints.filter((node) =>
       isPointWithinRect(node, p, rectWidth, rectHeight)
     ),
   }))
 }
 
-const getQuadrantTiles = (rotations: number, size: number = 5) => {
+const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   // Get tiles on top-left diagonal. First get the top-left corner point of the smallest square that would encompass each tile
   const diagPoints: Point[] = Array.from(Array(size - 1), (_, i) => ({
     x: i + 1,
@@ -68,22 +79,35 @@ const getQuadrantTiles = (rotations: number, size: number = 5) => {
 
   // Finally rotate the whole thing
   const allTiles = diagTileNodes.concat(horizTileNodes)
-  const rotatedTiles = allTiles.map(t => ({
+  const rotatedTiles = allTiles.map((t) => ({
     position: rotateClockwise(t.position, rotations, size),
-    nodes: t.nodes.map(n => rotateClockwise(n, rotations, size)),
+    nodes: t.nodes.map((n) => rotateClockwise(n, rotations, size)),
   }))
-  return rotatedTiles
+
+  // Add initial state to each tile
+  const result = rotatedTiles.map((tile) => ({
+    ...emptyTile,
+    ...tile,
+  }))
+  return result
 }
 
-export const getInitialTiles = (size: number = 5) => {
+export const getInitialTiles = (size: number = 5): Tile[] => {
   // First get tile nodes for each quadrant and flat them into a single array of tiles
-  let tiles = Array.from(Array(4), (_, i) => getQuadrantTiles(i, size)).flat(Infinity)
+  let tiles: Tile[] = Array.from(Array(4), (_, i) => getQuadrantTiles(i, size)).flat(1)
 
   // Add the center tile
-  tiles.push(getTileNodes([{ x: size, y: size }], 2, 2))
+  tiles.push({ ...emptyTile, ...getTileNodes([{ x: size, y: size }], 2, 2)[0]! })
 
   // Then we find each tile's neighbors by checking if they share a node
-  // TODO
+  const result: Tile[] = tiles.map<Tile>((tile) => ({
+    ...tile,
+    neighbors: tiles.filter((tile2) =>
+      tile.nodes.some((n) => tile2.nodes.some((n2) => n.x === n2.x && n.y === n2.y))
+    ),
+  }))
+
+  return result
 }
 
 export const defaultNodePoints: Node[] = [
