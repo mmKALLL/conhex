@@ -3,15 +3,16 @@ export type NodeState = 'empty' | 'first' | 'second'
 export type Node = Point & { state: NodeState }
 export type Tile = {
   position: Point
-  neighbors: Tile[]
   nodes: Point[]
+  neighbors: Tile[]
   state: NodeState
 }
 
 const emptyTile: Tile = {
   position: { x: 0, y: 0 },
+  nodes: [],
+  neighbors: [],
   state: 'empty' as const,
-  neighbors: [] as Tile[],
 }
 
 // Rotate a point 90 degrees clockwise
