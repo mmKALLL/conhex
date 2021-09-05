@@ -4,7 +4,7 @@ export type Node = Point & { state: NodeState }
 export type Tile = {
   position: Point
   nodes: Point[]
-  neighbors: Tile[]
+  neighbors: Point[] // positions of neighboring tiles
   state: NodeState
 }
 
@@ -21,13 +21,13 @@ const rotateClockwise = (position: Point, rotations: number, size: number = 5): 
     x: p.y,
     y: -p.x,
   })
-  // We need to rotate by the origin, so translate the point for processing
+  // We need to rotate by the origin, so translate the point to be based around (0,0) for processing
   const offset = size + 1
   const offsetPosition = { x: position.x - offset, y: position.y - offset }
-  const newPosition = Array(rotations).reduce<Point>(
-    (acc, _) => rotate(acc),
-    offsetPosition
-  )
+  // Run the reduce `rotations` number of times
+  const newPosition = Array(rotations)
+    .fill(0)
+    .reduce<Point>((acc, _) => rotate(acc), offsetPosition)
   return { x: newPosition.x + offset, y: newPosition.y + offset }
 }
 
@@ -78,7 +78,7 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   const horizPoints: Point[] = []
   for (let x = 0; x < size - 2; x++) {
     for (let y = 0; y < size - 2 - x; y++) {
-      horizPoints.push({ x: x * 2 + 3, y: y + 1 })
+      horizPoints.push({ x: x * 2 + y + 3, y: y + 1 })
     }
   }
 
@@ -107,6 +107,7 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
   // Add the center tile manually
   tiles.push({
     ...emptyTile,
+    position: { x: size + 1, y: size + 1 },
     nodes: [
       { x: size + 1, y: size },
       { x: size, y: size + 1 },
@@ -116,16 +117,28 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
     ],
   })
 
-  // Then we find each tile's neighbors by checking if they share a node
-  const result: Tile[] = tiles.map<Tile>((tile) => ({
-    ...tile,
-    neighbors: tiles.filter((tile2) =>
-      tile.nodes.some((n) => tile2.nodes.some((n2) => n.x === n2.x && n.y === n2.y))
-    ),
-  }))
+  // Then we find each tile's unique neighbors by checking if they share a node
+  const tilesWithNeighbors: Tile[] = tiles.map<Tile>((tile) => {
+    const neighborPositions = tiles
+      .filter((tile2) =>
+        tile.nodes.some((n) => tile2.nodes.some((n2) => n.x === n2.x && n.y === n2.y))
+      )
+      .map((t) => t.position)
+    const uniqueNeighbors = neighborPositions.reduce<Point[]>(
+      (acc, cur) =>
+        (cur.x === tile.position.x && cur.y === tile.position.y) || // remove the original tile to prevent recursion
+        acc.some((p) => p.x === cur.x && p.y === cur.y) // remove duplicates
+          ? acc
+          : acc.concat([cur]),
+      []
+    )
+    return {
+      ...tile,
+      neighbors: uniqueNeighbors,
+    }
+  })
 
-  console.log(result)
-  return result
+  return tilesWithNeighbors
 }
 
 export const defaultNodePoints: Node[] = [
