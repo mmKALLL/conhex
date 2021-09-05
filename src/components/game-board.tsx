@@ -8,13 +8,13 @@ import {
   NodeState,
 } from '../utils/board-utils'
 
-type ColorKey = NodeState | 'vertex' | 'background' | 'selected'
+type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
 
 const colors: Record<ColorKey, string> = {
   empty: '#FFF',
   first: '#F00', // first player move
   second: '#00F', // second player move
-  vertex: '#888', // strokes or "lines" surrounding tiles
+  stroke: '#888', // stroke color for vertices or "lines" surrounding tiles
   background: '#FFF',
   selected: '#0F0',
 }
