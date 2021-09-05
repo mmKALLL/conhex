@@ -1,1 +1,0 @@
-{"version":3,"sources":["main.scss"],"names":[],"mappings":"AAAA,KACE,yBAAA,CACA,YAGF,SACE,kBAGF,QACE,oBAGF,WACE","file":"main.f6549837.css","sourceRoot":"../src","sourcesContent":["#app {\n  max-width: min(100%, 800px);\n  margin: auto auto\n}\n\nh1, h2, h3 {\n  text-align: center;\n}\n\nsection {\n  margin-bottom: 0.5rem\n}\n\n.no-select {\n  user-select: none;\n}\n"]}
