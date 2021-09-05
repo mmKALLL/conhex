@@ -28,6 +28,7 @@ export function GameBoard({ size }: GameBoardProps) {
 
   const boardSize = 600
   const boardScale = 1
+  const coordinateMultiplier = 100 // based on rendering the svg
 
   const colors = {
     empty: '#FFFFFF',
@@ -52,10 +53,10 @@ export function GameBoard({ size }: GameBoardProps) {
           {/* <rect width="100%" height="100%" stroke="#000" strokeWidth="2" fill="none" /> */}
 
           {/** Selection border */}
-          {moves.length > 0 && (
+          {moves.length > 0 && lastMove && (
             <circle
-              cx={lastMove.x}
-              cy={lastMove.y}
+              cx={lastMove.x * coordinateMultiplier}
+              cy={lastMove.y * coordinateMultiplier}
               r={radius * 1.8}
               stroke="#ffffff"
               strokeWidth="0"
@@ -66,8 +67,8 @@ export function GameBoard({ size }: GameBoardProps) {
           {defaultNodePoints.map((n, i) => (
             <BoardNode
               key={i}
-              x={n.x}
-              y={n.y}
+              x={n.x * coordinateMultiplier}
+              y={n.y * coordinateMultiplier}
               state={n.state}
               radius={radius}
               stroke="#808080"
@@ -78,11 +79,6 @@ export function GameBoard({ size }: GameBoardProps) {
                 e.nativeEvent.preventDefault()
                 e.nativeEvent.stopImmediatePropagation()
                 const node = defaultNodePoints[i]
-                console.log(
-                  node,
-                  lastMove,
-                  moves.findIndex(move => move.x === n.x && move.y === n.y) === -1 // no existing move with same coordinates
-                )
                 if (
                   node &&
                   moves.findIndex(move => move.x === n.x && move.y === n.y) === -1 // no existing move with same coordinates
@@ -102,8 +98,8 @@ export function GameBoard({ size }: GameBoardProps) {
           {moves.map((n, i) => (
             <BoardNode
               key={i + '-move'}
-              x={n.x}
-              y={n.y}
+              x={n.x * coordinateMultiplier}
+              y={n.y * coordinateMultiplier}
               state={n.state}
               radius={radius}
               stroke="#808080"
