@@ -14,8 +14,7 @@ export function GameBoard({ size }: GameBoardProps) {
   // }))
 
   const [moves, setMoves] = useState<Node[]>([])
-  const lastMove: Node | undefined =
-    moves.length > 0 ? moves[moves.length - 1] : undefined
+  const lastMove = moves[moves.length - 1]
 
   // const setNode = (index: number, newState: NodeState) => {
   //   const tempNodes = nodes.slice()
