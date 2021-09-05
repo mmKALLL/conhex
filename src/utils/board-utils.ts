@@ -35,22 +35,29 @@ const isPointWithinRect = (
   point: Point,
   rect: Point,
   rectWidth: number,
-  rectHeight: number
+  rectHeight: number,
+  size: number
 ) =>
+  // Is inside rectangle
   point.x >= rect.x &&
   point.x <= rect.x + rectWidth &&
   point.y >= rect.y &&
-  point.y <= rect.y + rectHeight
+  point.y <= rect.y + rectHeight &&
+  // Is not the dead center point (to exclude center of diagonals tiles' bounding box)
+  !(point.x === rect.x + rectWidth / 2 && point.y === rect.y + rectHeight / 2) &&
+  // Is not the center tile center point (since it might be inside bounding box)
+  !(point.x === size + 1 && point.y === size + 1)
 
 const getTileNodes = (
   positions: Point[],
   rectWidth: number,
-  rectHeight: number
+  rectHeight: number,
+  size: number
 ): Pick<Tile, 'position' | 'nodes'>[] => {
   return positions.map((p) => ({
     position: p,
     nodes: defaultNodePoints.filter((node) =>
-      isPointWithinRect(node, p, rectWidth, rectHeight)
+      isPointWithinRect(node, p, rectWidth, rectHeight, size)
     ),
   }))
 }
@@ -63,7 +70,7 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   }))
 
   // Map each diagonal tile's topleft coordinate to its nodes by checking which nodes would be inside the 2x2 square
-  const diagTileNodes = getTileNodes(diagPoints, 2, 2)
+  const diagTileNodes = getTileNodes(diagPoints, 2, 2, size)
 
   // Getting the long tiles is similar but a bit more involved. First get top-left coordinate of tiles along top edge.
   // The base x-y is mapped into board x-y.
@@ -76,7 +83,7 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   }
 
   // Map each tile's topleft coordinate to its nodes
-  const horizTileNodes = getTileNodes(horizPoints, 2, 1)
+  const horizTileNodes = getTileNodes(horizPoints, 2, 1, size)
 
   // Finally rotate the whole thing
   const allTiles = diagTileNodes.concat(horizTileNodes)
@@ -97,8 +104,17 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
   // First get tile nodes for each quadrant and flat them into a single array of tiles
   let tiles: Tile[] = Array.from(Array(4), (_, i) => getQuadrantTiles(i, size)).flat(1)
 
-  // Add the center tile
-  tiles.push({ ...emptyTile, ...getTileNodes([{ x: size, y: size }], 2, 2)[0]! })
+  // Add the center tile manually
+  tiles.push({
+    ...emptyTile,
+    nodes: [
+      { x: size + 1, y: size },
+      { x: size, y: size + 1 },
+      { x: size + 1, y: size + 1 },
+      { x: size + 2, y: size + 1 },
+      { x: size + 1, y: size + 2 },
+    ],
+  })
 
   // Then we find each tile's neighbors by checking if they share a node
   const result: Tile[] = tiles.map<Tile>((tile) => ({
@@ -108,6 +124,7 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
     ),
   }))
 
+  console.log(result)
   return result
 }
 
