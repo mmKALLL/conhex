@@ -81,7 +81,7 @@ export function GameBoard({ size }: GameBoardProps) {
 
   return (
     <section>
-      <section>Hello, nice board incoming</section>
+      <section>Little Golem style board demo</section>
       <div style={{ height: boardSize * boardZoom }}>
         <svg
           className="no-select"

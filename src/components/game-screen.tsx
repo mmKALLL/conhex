@@ -4,7 +4,7 @@ import { GameBoard } from './game-board'
 export function GameScreen({}) {
   return (
     <div className="game-screen">
-      <p>More text</p>
+      <p>Test text</p>
       <GameBoard size={5} />
     </div>
   )
