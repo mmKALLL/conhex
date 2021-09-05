@@ -5,6 +5,7 @@ export type BoardTileProps = Tile & { scale: number }
 
 export function BoardTile({
   nodes,
+  fakeNodes,
   scale,
   stroke,
   strokeWidth,
@@ -12,9 +13,17 @@ export function BoardTile({
 }: BoardTileProps & React.SVGAttributes<SVGPolygonElement>) {
   return (
     <>
-      {/* "100,900 100,700 200,700 200,800 200,900" */}
       <polygon
-        points={nodes.map((n) => `${n.x * scale},${n.y * scale}`).join(' ')}
+        points={nodes
+          .concat(fakeNodes)
+          .slice()
+          .sort(
+            (a, b) =>
+              // Return clockwise ordering using cross product of vectors (center -> a) x (center -> b), see https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order
+              (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y)
+          )
+          .map((n) => `${n.x * scale},${n.y * scale}`)
+          .join(' ')}
         style={{ fill, stroke, strokeWidth }}
       ></polygon>
     </>
