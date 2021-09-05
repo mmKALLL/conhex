@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { BoardNode } from './board-node'
-import { Node, defaultNodePoints } from '../utils/board-utils'
+import { Node, defaultNodePoints, getInitialTiles, Tile } from '../utils/board-utils'
 
 export type GameBoardProps = {
   size: number // in number of tiles surrounding the perimeter of the board
 }
 
-export function GameBoard({}: GameBoardProps) {
+export function GameBoard({ size }: GameBoardProps) {
   const [moves, setMoves] = useState<Node[]>([])
+  const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
   const lastMove = moves[moves.length - 1]
 
   const radius = 28
