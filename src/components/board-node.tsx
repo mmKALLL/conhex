@@ -1,5 +1,11 @@
 import React from 'react'
-import { Node } from '../utils/board-utils'
+import { Node, NodeState } from '../utils/board-utils'
+
+const colors: Record<NodeState, string> = {
+  empty: '#FFFFFF',
+  first: '#FF0000',
+  second: '#0000FF',
+}
 
 export type BoardNodeProps = Node & {
   radius: number
@@ -30,7 +36,7 @@ export function BoardNode({
         cy={y}
         r={radius}
         {...props}
-        fill={state === 'first' ? '#00f' : state === 'second' ? '#f00' : '#fff'}
+        fill={colors[state]}
         style={{ cursor: 'pointer' }}
         onClick={e => onClick(e)}
       />

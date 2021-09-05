@@ -6,7 +6,7 @@ export type GameBoardProps = {
   size: number // in number of tiles surrounding the perimeter of the board
 }
 
-export function GameBoard({ size }: GameBoardProps) {
+export function GameBoard({ }: GameBoardProps) {
   // const initialNodes = Array.from(Array(20), (_, i) => ({
   //   x: Math.floor(Math.random() * i * 1.5) + 2,
   //   y: Math.floor(Math.random() * i * 1.5) + 2,
@@ -29,12 +29,6 @@ export function GameBoard({ size }: GameBoardProps) {
   const boardSize = 600
   const boardScale = 1
   const coordinateMultiplier = 100 // based on rendering the svg
-
-  const colors = {
-    empty: '#FFFFFF',
-    white: '#FF0000',
-    black: '#0000FF',
-  }
 
   return (
     <section>
@@ -104,7 +98,7 @@ export function GameBoard({ size }: GameBoardProps) {
               radius={radius}
               stroke="#808080"
               strokeWidth={strokeWidth}
-              onClick={e => {}}
+              onClick={() => { }}
               style={{ cursor: 'default' }}
             />
           ))}
