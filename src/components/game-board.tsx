@@ -32,8 +32,8 @@ export function GameBoard({ size }: GameBoardProps) {
   const strokeWidth = 7
 
   const boardSize = 600
-  const boardScale = 1
-  const coordinateMultiplier = 100 // based on rendering the svg
+  const boardZoom = 1
+  const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
   const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node) => {
     e.preventDefault()
@@ -44,36 +44,38 @@ export function GameBoard({ size }: GameBoardProps) {
       // no existing move with same coordinates
       moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
     ) {
-      setMoves([
-        ...moves,
-        {
-          ...node,
-          state: lastMove && lastMove.state === 'first' ? 'second' : 'first',
-        },
-      ])
+      const state = lastMove && lastMove.state === 'first' ? 'second' : 'first'
+      setMoves([...moves, { ...node, state }])
+
+      const newTiles = tiles.map((tile) => {
+        if (true) {
+        }
+        return tile
+      })
+      setTiles(newTiles)
     }
   }
 
   return (
     <section>
       <section>Hello, nice board incoming</section>
-      <div style={{ height: boardSize * boardScale }}>
+      <div style={{ height: boardSize * boardZoom }}>
         <svg
           className="no-select"
           viewBox="0 0 1202 1202"
           style={{ position: 'relative', top: 0, left: 0, transformOrigin: 'top left' }}
           width={boardSize}
           height={boardSize}
-          transform={`scale(${boardScale})`}
+          transform={`scale(${boardZoom})`}
           xmlns="http://www.w3.org/2000/svg"
         >
-          <BoardBase5 strokeWidth={strokeWidth} tiles={tiles} />
+          <BoardBase5 strokeWidth={strokeWidth} tiles={tiles} scale={scale} />
 
           {/** Selection border */}
           {moves.length > 0 && lastMove && (
             <circle
-              cx={lastMove.x * coordinateMultiplier}
-              cy={lastMove.y * coordinateMultiplier}
+              cx={lastMove.x * scale}
+              cy={lastMove.y * scale}
               r={radius * 1.8}
               stroke="#ffffff"
               strokeWidth="0"
@@ -86,8 +88,8 @@ export function GameBoard({ size }: GameBoardProps) {
           {defaultNodePoints.map((n, i) => (
             <BoardNode
               key={i}
-              x={n.x * coordinateMultiplier}
-              y={n.y * coordinateMultiplier}
+              x={n.x * scale}
+              y={n.y * scale}
               state={n.state}
               radius={radius}
               stroke="#808080"
@@ -101,8 +103,8 @@ export function GameBoard({ size }: GameBoardProps) {
             <BoardNode
               key={i + '-move'}
               state={n.state}
-              x={n.x * coordinateMultiplier}
-              y={n.y * coordinateMultiplier}
+              x={n.x * scale}
+              y={n.y * scale}
               fill={colors[n.state]}
               radius={radius}
               stroke="#808080"
