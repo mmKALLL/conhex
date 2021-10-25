@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { BoardNode } from './board-node'
 import {
   Node,
@@ -34,6 +34,8 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({ size }: GameBoardProps) {
+  const originalMoves = useMemo<Node[]>(() => [], []) // TODO: Will eventually be used when loading a game from URL or Little Golem
+  const [currentBranch, setCurrentBranch] = useState<Node[]>([])
   const [moves, setMoves] = useState<Node[]>([])
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
   const lastMove = moves[moves.length - 1]
@@ -54,9 +56,15 @@ export function GameBoard({ size }: GameBoardProps) {
       // no existing move with same coordinates
       moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
     ) {
-      const newState = lastMove && lastMove.state === 'first' ? 'second' : 'first'
-      setMoves([...moves, { ...node, state: newState }])
+      const newState =
+        lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
+      const newMoves = [...moves, { ...node, state: newState }]
+      setMoves(newMoves)
 
+      // Update current play branch, prev/next buttons use the new state as the baseline
+      setCurrentBranch(newMoves)
+
+      // TODO: To prevent bugs with rewind, we may need to recalculate the state from scratch too
       const newTiles = tiles
         // Update tiles' individual nodes' state
         .map((tile) => ({
@@ -142,6 +150,22 @@ export function GameBoard({ size }: GameBoardProps) {
             />
           ))}
         </svg>
+      </div>
+      <div className="board-buttons">
+        <button onClick={() => setMoves(currentBranch.slice(0, 1))}>&lt;&lt; First</button>
+        <button onClick={() => setMoves(moves.slice(0, -1))}>&lt; Prev</button>
+        <button onClick={() => setMoves(currentBranch.slice(0, moves.length + 1))}>
+          &gt; Next
+        </button>
+        <button onClick={() => setMoves(currentBranch)}>&gt;&gt; Last</button>
+        <button
+          onClick={() => {
+            setMoves(originalMoves)
+            setCurrentBranch(originalMoves)
+          }}
+        >
+          Reset
+        </button>
       </div>
     </section>
   )
