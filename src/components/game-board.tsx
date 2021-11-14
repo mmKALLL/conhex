@@ -73,17 +73,25 @@ export function GameBoard({ size }: GameBoardProps) {
       (doc) => {
         console.log('Current data: ', doc.data())
         const newMoves = doc.data()
-        setMoves(newMoves ? newMoves : [])
+        newMoves?.forEach((move) => {
+          handleMove(undefined, move)
+        })
+        newMoves && setMoves(newMoves)
       }
     )
     return unsub
   }, [])
 
-  const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node): void => {
-    e.preventDefault()
-    e.stopPropagation()
-    e.nativeEvent.preventDefault()
-    e.nativeEvent.stopImmediatePropagation()
+  const handleMove = (
+    e: React.MouseEvent<SVGCircleElement, MouseEvent> | undefined,
+    node: Node
+  ): void => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+      e.nativeEvent.preventDefault()
+      e.nativeEvent.stopImmediatePropagation()
+    }
     if (
       // no existing move with same coordinates
       moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
@@ -96,7 +104,6 @@ export function GameBoard({ size }: GameBoardProps) {
       // Update current play branch, prev/next buttons use the new state as the baseline
       setCurrentBranch(newMoves)
 
-      // TODO: To prevent bugs with rewind, we may need to recalculate the state from scratch too
       const newTiles = tiles
         // Update tiles' individual nodes' state
         .map((tile) => ({
@@ -107,18 +114,41 @@ export function GameBoard({ size }: GameBoardProps) {
           })),
         }))
         // Update tile state if majority has been won for the first time
-      void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(movesConverter), newMoves)
-        .map((tile) => ({
-          ...tile,
-          state:
-            tile.state === 'empty' &&
-            tile.nodes.filter((n) => n.state === newState).length >= tile.nodes.length / 2
-              ? newState
-              : tile.state,
-        }))
+        .map(updateTileStatus) // FIXME: Does not work after starting to use firebase for the moves
       setTiles(newTiles)
+      // Send to firebase if move is new
+      if (e) {
+        void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(movesConverter), newMoves)
+      }
     }
   }
+
+  const jumpToMove = (moveNumber: number): void => {
+    const newMoves = currentBranch.slice(0, moveNumber)
+    setMoves(newMoves)
+    // Only keep state of tile nodes which have remained in newMoves (there might be faster ways to do this but on 5x5 perf is not an issue)
+    const newTiles = tiles
+      .map((tile) => ({
+        ...tile,
+        nodes: tile.nodes.map((n) => ({
+          ...n,
+          state: newMoves.some((n2) => n.x === n2.x && n.y === n2.y) ? n.state : 'empty', // FIXME: We need to empty the tile status too
+        })),
+      }))
+      .map(updateTileStatus)
+    setTiles(newTiles)
+  }
+
+  const updateTileStatus = (tile: Tile): Tile => ({
+    ...tile,
+    state:
+      tile.state === 'empty' &&
+      tile.nodes.filter((n) => n.state === 'first').length >= tile.nodes.length / 2
+        ? 'first'
+        : tile.nodes.filter((n) => n.state === 'second').length >= tile.nodes.length / 2
+        ? 'second'
+        : tile.state,
+  })
 
   return (
     <section>
@@ -185,16 +215,14 @@ export function GameBoard({ size }: GameBoardProps) {
         </svg>
       </div>
       <div className="board-buttons">
-        <button onClick={() => setMoves(currentBranch.slice(0, 1))}>&lt;&lt; First</button>
-        <button onClick={() => setMoves(moves.slice(0, -1))}>&lt; Prev</button>
-        <button onClick={() => setMoves(currentBranch.slice(0, moves.length + 1))}>
-          &gt; Next
-        </button>
-        <button onClick={() => setMoves(currentBranch)}>&gt;&gt; Last</button>
+        <button onClick={() => jumpToMove(1)}>&lt;&lt; First</button>
+        <button onClick={() => jumpToMove(moves.length - 1)}>&lt; Prev</button>
+        <button onClick={() => jumpToMove(moves.length + 1)}>&gt; Next</button>
+        <button onClick={() => jumpToMove(currentBranch.length)}>&gt;&gt; Last</button>
         <button
           onClick={() => {
-            setMoves(originalMoves)
             setCurrentBranch(originalMoves)
+            jumpToMove(originalMoves.length)
           }}
         >
           Reset
