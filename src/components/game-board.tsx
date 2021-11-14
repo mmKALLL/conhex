@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { BoardNode } from './board-node'
 import {
   Node,
@@ -9,6 +9,15 @@ import {
   Point,
 } from '../utils/board-utils'
 import { BoardTile } from './board-tile'
+import {
+  doc,
+  DocumentData,
+  getFirestore,
+  onSnapshot,
+  QueryDocumentSnapshot,
+  setDoc,
+  SnapshotOptions,
+} from 'firebase/firestore'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
 
@@ -47,7 +56,30 @@ export function GameBoard({ size }: GameBoardProps) {
   const boardZoom = 1
   const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
-  const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node) => {
+  // Firebase
+  const db = getFirestore()
+  const movesConverter = {
+    toFirestore(moves: Node[]): DocumentData {
+      return { moves }
+    },
+    fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Node[] {
+      const data = snapshot.data(options)!
+      return data.moves
+    },
+  }
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter<Node[]>(movesConverter),
+      (doc) => {
+        console.log('Current data: ', doc.data())
+        const newMoves = doc.data()
+        setMoves(newMoves ? newMoves : [])
+      }
+    )
+    return unsub
+  }, [])
+
+  const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node): void => {
     e.preventDefault()
     e.stopPropagation()
     e.nativeEvent.preventDefault()
@@ -75,6 +107,7 @@ export function GameBoard({ size }: GameBoardProps) {
           })),
         }))
         // Update tile state if majority has been won for the first time
+      void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(movesConverter), newMoves)
         .map((tile) => ({
           ...tile,
           state:

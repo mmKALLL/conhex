@@ -8,6 +8,9 @@
     "engines": {
         "node": ">=12.20.0"
     },
+    "browserslist": [
+        "since 2019-06"
+      ],
     "scripts": {
         "dist": "yarn install && yarn build",
         "start": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel src/index.html --open'",
@@ -28,7 +31,8 @@
     "dependencies": {
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
-        "tslib": "^2.3.0"
+        "tslib": "^2.3.0",
+        "firebase": "^9.4.1"
     },
     "devDependencies": {
         "@types/node": "^11.11.5",
