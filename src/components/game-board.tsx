@@ -117,11 +117,14 @@ export function GameBoard({ size }: GameBoardProps) {
           })),
         }))
         // Update tile state if majority has been won for the first time
-        .map(updateTileStatus) // FIXME: Does not work after starting to use firebase for the moves
+        .map(updateTileStatus)
       setTiles(newTiles)
       // Send to firebase if move is new
       if (e) {
-        void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(movesConverter), newMoves)
+        void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(dbConverter), {
+          moves: newMoves,
+          tiles: newTiles,
+        })
       }
     }
   }
