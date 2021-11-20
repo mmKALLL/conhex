@@ -9,6 +9,8 @@ export function GameScreen({}) {
         <br />
         <br />
         <br />
+        Version 0.4.1
+        <br />
         This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book project.
         <br />
         Currently it features a Little Golem style board demo (with Richard's permission). <br />
