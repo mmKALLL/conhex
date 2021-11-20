@@ -6,10 +6,10 @@ export function GameScreen({}) {
     <div className="game-screen">
       <GameBoard size={5} />
       <p>
-        <br />
-        <br />
-        <br />
         Version 0.4.1
+        <br />
+        <br />
+        <br />
         <br />
         This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book project.
         <br />
