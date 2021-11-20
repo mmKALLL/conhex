@@ -58,25 +58,28 @@ export function GameBoard({ size }: GameBoardProps) {
 
   // Firebase
   const db = getFirestore()
-  const movesConverter = {
-    toFirestore(moves: Node[]): DocumentData {
-      return { moves }
+  const dbConverter = {
+    toFirestore(data: { moves: Node[]; tiles: Tile[] }): DocumentData {
+      return data
     },
-    fromFirestore(snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Node[] {
+    fromFirestore(
+      snapshot: QueryDocumentSnapshot,
+      options: SnapshotOptions
+    ): { moves: Node[]; tiles: Tile[] } {
       const data = snapshot.data(options)!
-      return data.moves
+      return data as { moves: Node[]; tiles: Tile[] }
     },
   }
   useEffect(() => {
     const unsub = onSnapshot(
-      doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter<Node[]>(movesConverter),
+      doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(dbConverter),
       (doc) => {
         console.log('Current data: ', doc.data())
-        const newMoves = doc.data()
-        newMoves?.forEach((move) => {
-          handleMove(undefined, move)
-        })
+        const newMoves = doc.data()?.moves ?? []
         newMoves && setMoves(newMoves)
+        newMoves && setCurrentBranch(newMoves)
+        const newTiles = doc.data()?.tiles ?? getInitialTiles()
+        newTiles && setTiles(newTiles)
       }
     )
     return unsub
