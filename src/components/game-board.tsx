@@ -145,11 +145,12 @@ export function GameBoard({ size }: GameBoardProps) {
   const updateTileStatus = (tile: Tile): Tile => ({
     ...tile,
     state:
-      tile.state === 'empty' &&
-      tile.nodes.filter((n) => n.state === 'first').length >= tile.nodes.length / 2
-        ? 'first'
-        : tile.nodes.filter((n) => n.state === 'second').length >= tile.nodes.length / 2
-        ? 'second'
+      tile.state === 'empty'
+        ? tile.nodes.filter((n) => n.state === 'first').length >= tile.nodes.length / 2
+          ? 'first'
+          : tile.nodes.filter((n) => n.state === 'second').length >= tile.nodes.length / 2
+          ? 'second'
+          : tile.state
         : tile.state,
   })
 
