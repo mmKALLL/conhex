@@ -6,11 +6,12 @@ export function GameScreen({}) {
     <div className="game-screen">
       <GameBoard size={5} />
       <p>
-        This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book
-        project.
         <br />
-        Currently it features a Little Golem style board demo (with Richard's permission).{' '}
         <br />
+        <br />
+        This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book project.
+        <br />
+        Currently it features a Little Golem style board demo (with Richard's permission). <br />
         <br />
         Book draft available at:
         <br />
