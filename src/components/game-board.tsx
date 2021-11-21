@@ -47,7 +47,6 @@ export function GameBoard({ size }: GameBoardProps) {
   const [currentBranch, setCurrentBranch] = useState<Node[]>([])
   const [moves, setMoves] = useState<Node[]>([])
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
-  const lastMove = moves[moves.length - 1]
 
   const radius = 28
   const strokeWidth = 7
@@ -185,10 +184,10 @@ export function GameBoard({ size }: GameBoardProps) {
           />
 
           {/** Selection border */}
-          {moves.length > 0 && lastMove && (
+          {moves.length > 0 && (
             <circle
-              cx={lastMove.x * scale}
-              cy={lastMove.y * scale}
+              cx={moves[moves.length - 1]!.x * scale}
+              cy={moves[moves.length - 1]!.y * scale}
               r={radius * 1.8}
               stroke="#ffffff"
               strokeWidth="0"
