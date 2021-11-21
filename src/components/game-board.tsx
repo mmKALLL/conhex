@@ -43,7 +43,7 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({ size }: GameBoardProps) {
-  const originalMoves = useMemo<Node[]>(() => [], []) // TODO: Will eventually be used when loading a game from URL or Little Golem
+  const originalMoves = useMemo<Node[]>(() => [], []) // TODO: Will eventually be used when loading a game in book, from URL, or Little Golem
   const [currentBranch, setCurrentBranch] = useState<Node[]>([])
   const [moves, setMoves] = useState<Node[]>([])
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
@@ -56,32 +56,39 @@ export function GameBoard({ size }: GameBoardProps) {
   const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
   // Firebase
+  const firebaseGameId = 'Pf2JJAfk3Bv6smP5MC01'
   const db = getFirestore()
   const dbConverter = {
-    toFirestore(data: { moves: Node[]; tiles: Tile[] }): DocumentData {
+    toFirestore(data: { moves: Node[]; tiles: Tile[]; branch: Node[] }): DocumentData {
       return data
     },
     fromFirestore(
       snapshot: QueryDocumentSnapshot,
       options: SnapshotOptions
-    ): { moves: Node[]; tiles: Tile[] } {
+    ): { moves: Node[]; tiles: Tile[]; branch: Node[] } {
       const data = snapshot.data(options)!
-      return data as { moves: Node[]; tiles: Tile[] }
+      return data as { moves: Node[]; tiles: Tile[]; branch: Node[] }
     },
   }
   useEffect(() => {
-    const unsub = onSnapshot(
-      doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(dbConverter),
-      (doc) => {
-        console.log('Current data: ', doc.data())
-        const newMoves = doc.data()?.moves ?? []
-        newMoves && setMoves(newMoves)
-        newMoves && setCurrentBranch(newMoves)
-        const newTiles = doc.data()?.tiles ?? getInitialTiles()
-        newTiles && setTiles(newTiles)
-      }
-    )
-    return unsub
+    if (firebaseGameId) {
+      const unsub = onSnapshot(
+        doc(db, `games/${firebaseGameId}`).withConverter(dbConverter),
+        (doc) => {
+          // console.log('Current data: ', doc.data())
+          const newMoves = doc.data()?.moves ?? []
+          const newTiles = doc.data()?.tiles ?? getInitialTiles(size)
+          const newBranch = doc.data()?.branch ?? []
+          newMoves && setMoves(newMoves)
+          newTiles && setTiles(newTiles)
+          newBranch && setCurrentBranch(newBranch)
+        }
+      )
+      return unsub
+    }
+    return () => {}
+  }, [firebaseGameId])
+
   const updateFirebase = (newMoves: Node[], newTiles: Tile[], newBranch: Node[]) => {
     if (firebaseGameId) {
       void setDoc(doc(db, `games/${firebaseGameId}`).withConverter(dbConverter), {
