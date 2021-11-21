@@ -6,7 +6,8 @@ export function GameScreen({}) {
     <div className="game-screen">
       <GameBoard size={5} />
       <p>
-        Version 0.4.1
+        Version 0.5.0
+        {/* TODO: Fix formatting with CSS */}
         <br />
         <br />
         <br />
