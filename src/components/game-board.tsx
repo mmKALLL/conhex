@@ -230,10 +230,10 @@ export function GameBoard({ size }: GameBoardProps) {
         </svg>
       </div>
       <div className="board-buttons">
-        {/* <button onClick={() => jumpToMove(1)}>&lt;&lt; First</button>
+        <button onClick={() => jumpToMove(1)}>&lt;&lt; First</button>
         <button onClick={() => jumpToMove(moves.length - 1)}>&lt; Prev</button>
         <button onClick={() => jumpToMove(moves.length + 1)}>&gt; Next</button>
-        <button onClick={() => jumpToMove(currentBranch.length)}>&gt;&gt; Last</button> */}
+        <button onClick={() => jumpToMove(currentBranch.length)}>&gt;&gt; Last</button>
         <button
           onClick={() => {
             setCurrentBranch(originalMoves)
