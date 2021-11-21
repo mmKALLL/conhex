@@ -142,19 +142,19 @@ export function GameBoard({ size }: GameBoardProps) {
     return { newMoves, newTiles }
   }
 
-  const jumpToMove = (moveNumber: number): void => {
-    const newMoves = currentBranch.slice(0, moveNumber)
+  const jumpToMove = (
+    moveNumber: number,
+    { resetBranch }: { resetBranch: boolean } = { resetBranch: false }
+  ): void => {
+    const branchSlice = currentBranch.slice(0, moveNumber)
+    const { newMoves, newTiles } = branchSlice.reduce<{ newMoves: Node[]; newTiles: Tile[] }>(
+      ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
+      {
+        newMoves: [],
+        newTiles: getInitialTiles(size),
+      }
+    )
     setMoves(newMoves)
-    // Only keep state of tile nodes which have remained in newMoves (there might be faster ways to do this but on 5x5 perf is not an issue)
-    const newTiles = tiles
-      .map((tile) => ({
-        ...tile,
-        nodes: tile.nodes.map((n) => ({
-          ...n,
-          state: newMoves.some((n2) => n.x === n2.x && n.y === n2.y) ? n.state : 'empty', // FIXME: We need to empty the tile status too
-        })),
-      }))
-      .map(updateTileStatus)
     setTiles(newTiles)
     updateFirebase(newMoves, newTiles, resetBranch ? newMoves : currentBranch)
   }
