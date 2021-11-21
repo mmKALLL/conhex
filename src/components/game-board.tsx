@@ -85,48 +85,47 @@ export function GameBoard({ size }: GameBoardProps) {
     return unsub
   }, [])
 
-  const handleMove = (
-    e: React.MouseEvent<SVGCircleElement, MouseEvent> | undefined,
-    node: Node
-  ): void => {
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-      e.nativeEvent.preventDefault()
-      e.nativeEvent.stopImmediatePropagation()
-    }
+  // Handle a new move based on mouse click. For traversing the existing moves, use jumpToMove instead.
+  const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.nativeEvent.preventDefault()
+    e.nativeEvent.stopImmediatePropagation()
     if (
       // no existing move with same coordinates
       moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
     ) {
-      const newState =
-        lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
-      const newMoves = [...moves, { ...node, state: newState }]
+      const { newMoves, newTiles } = computeMove(node, { moves, tiles })
       setMoves(newMoves)
-
-      // Update current play branch, prev/next buttons use the new state as the baseline
-      setCurrentBranch(newMoves)
-
-      const newTiles = tiles
-        // Update tiles' individual nodes' state
-        .map((tile) => ({
-          ...tile,
-          nodes: tile.nodes.map((n) => ({
-            ...n,
-            state: n.x === node.x && n.y === node.y ? newState : n.state,
-          })),
-        }))
-        // Update tile state if majority has been won for the first time
-        .map(updateTileStatus)
       setTiles(newTiles)
-      // Send to firebase if move is new
-      if (e) {
-        void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(dbConverter), {
-          moves: newMoves,
-          tiles: newTiles,
-        })
-      }
+
+      // Update current play branch, prev/next buttons use the this state as the baseline
+      setCurrentBranch(newMoves)
+      updateFirebase(newMoves, newTiles, newMoves)
     }
+  }
+
+  const computeMove = (
+    node: Node,
+    { moves, tiles }: { moves: Node[]; tiles: Tile[] }
+  ): { newMoves: Node[]; newTiles: Tile[] } => {
+    const lastMove = moves[moves.length - 1]
+    const newState =
+      lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
+    const newMoves = [...moves, { ...node, state: newState }]
+    const newTiles = tiles
+      // Update tiles' individual nodes' state
+      .map((tile) => ({
+        ...tile,
+        nodes: tile.nodes.map((n) => ({
+          ...n,
+          state: n.x === node.x && n.y === node.y ? newState : n.state,
+        })),
+      }))
+      // Update tile state if majority has been won for the first time
+      .map(updateTileStatus)
+
+    return { newMoves, newTiles }
   }
 
   const jumpToMove = (moveNumber: number): void => {
