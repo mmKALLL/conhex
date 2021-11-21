@@ -10,8 +10,6 @@ export type Tile = {
   state: NodeState
 }
 
-const BOARD_SIZE = 5
-
 const emptyTile: Tile = {
   position: { x: 0, y: 0 },
   center: { x: 0, y: 0 },
@@ -69,7 +67,7 @@ const getTileNodes = (
     nodes: defaultNodePoints.filter((node) =>
       isPointWithinRect(node, p, rectWidth, rectHeight, size)
     ),
-    fakeNodes: fakeNodePoints.filter((node) =>
+    fakeNodes: fakeNodePoints(size).filter((node) =>
       isPointWithinRect(node, p, rectWidth, rectHeight, size)
     ),
   }))
@@ -161,18 +159,14 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
 }
 
 // Fake nodes first, these are not playable but needed for rendering edges
-const fakeEdge: Node[] = [
-  { x: 3, y: 1, state: 'fake' },
-  { x: 5, y: 1, state: 'fake' },
-  { x: 7, y: 1, state: 'fake' },
-  { x: 9, y: 1, state: 'fake' },
-]
-const fakeNodePoints: Node[] = [0, 1, 2, 3]
-  .map((rotations) => fakeEdge.map((p) => rotateClockwise(p, rotations, BOARD_SIZE)))
+const fakeEdge = (size: number): Node[] => Array(size - 1).fill(0).map((_, i) => ({ x: 3 + i * 2, y: 1, state: 'fake' }))
+const fakeNodePoints = (size: number): Node[] => [0, 1, 2, 3]
+  .map((rotations) => fakeEdge(size).map((p) => rotateClockwise(p, rotations, size)))
   .flat(1)
 
 // Then the playable points
-export const defaultNodePoints: Node[] = [
+export const defaultNodePoints: Node[] = ([
+// (size: number): Node[] => Array(size).fill(0).map((_, i) =>  [
   { x: 1, y: 11, state: 'empty' },
   { x: 1, y: 1, state: 'empty' },
   { x: 2, y: 9, state: 'empty' },
@@ -243,3 +237,4 @@ export const defaultNodePoints: Node[] = [
   { x: 11, y: 11, state: 'empty' },
   { x: 11, y: 1, state: 'empty' },
 ]
+)
