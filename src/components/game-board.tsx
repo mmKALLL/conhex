@@ -83,7 +83,15 @@ export function GameBoard({ size }: GameBoardProps) {
       }
     )
     return unsub
-  }, [])
+  const updateFirebase = (newMoves: Node[], newTiles: Tile[], newBranch: Node[]) => {
+    if (firebaseGameId) {
+      void setDoc(doc(db, `games/${firebaseGameId}`).withConverter(dbConverter), {
+        moves: newMoves,
+        tiles: newTiles,
+        branch: newBranch,
+      })
+    }
+  }
 
   // Handle a new move based on mouse click. For traversing the existing moves, use jumpToMove instead.
   const handleMove = (e: React.MouseEvent<SVGCircleElement, MouseEvent>, node: Node): void => {
@@ -142,6 +150,7 @@ export function GameBoard({ size }: GameBoardProps) {
       }))
       .map(updateTileStatus)
     setTiles(newTiles)
+    updateFirebase(newMoves, newTiles, resetBranch ? newMoves : currentBranch)
   }
 
   const updateTileStatus = (tile: Tile): Tile => ({
@@ -228,13 +237,7 @@ export function GameBoard({ size }: GameBoardProps) {
         <button
           onClick={() => {
             setCurrentBranch(originalMoves)
-            jumpToMove(originalMoves.length)
-            setTiles(getInitialTiles())
-
-            void setDoc(doc(db, 'games/Pf2JJAfk3Bv6smP5MC01').withConverter(dbConverter), {
-              moves: [],
-              tiles: getInitialTiles(),
-            })
+            jumpToMove(originalMoves.length, { resetBranch: true })
           }}
         >
           Reset
