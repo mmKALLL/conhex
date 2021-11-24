@@ -12,9 +12,10 @@
         "since 2019-06"
       ],
     "scripts": {
-        "dist": "yarn install && yarn build",
+        "dist": "yarn install && yarn build && firebase deploy",
         "start": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel src/index.html --open'",
-        "build": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"docs\"'",
+        "build": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"dist\"'",
+        "build-gh": "sh -c 'node_modules/.bin/tsc --noEmit' && sh -c 'node_modules/.bin/parcel build src/index.html --public-url=\"./\" --out-dir=\"docs\"'",
         "test": "echo \"Error: no test specified\" && exit 1",
         "compile": "tsc"
     },
