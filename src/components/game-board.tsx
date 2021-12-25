@@ -57,6 +57,13 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
   const boardZoom = 1
   const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
+  // Handle tile coloring when game is loaded from SGF
+  useEffect(() => {
+    if (originalMoves.length > 0) {
+      jumpToMove(originalMoves.length, { resetBranch: true })
+    }
+  }, [originalMoves])
+
   // Firebase
   const firebaseGameId = originalMoves.length === 0 ? 'Pf2JJAfk3Bv6smP5MC01' : undefined
   const db = getFirestore()
