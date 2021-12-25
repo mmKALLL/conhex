@@ -14,23 +14,70 @@ type GameState = {
   mainBranch: Node[]
 }
 
-const readGame = (sgfText: string): GameState => {
-  let baseText = sgfText.split(/\w*\n\w*/).join('')
-  let [header, remaining] = baseText.split(/(?<=FF\[CONHEX\])/)
-  console.log(header, '\n', remaining)
-
-  if (!header?.toLowerCase().includes('conhex')) {
-    throw new Error(
-      'Loaded game does not match expected format (SGF FF field is not CONHEX).'
-    )
-  }
-
-  return {
-    type: 'review',
+// Only Little Golem style support right now. Good to note that their SGFs always have the same fields in the same order. See examples below.
+// NOTE: Board coordinates start from bottom left on LG
+export const readGame = (sgfText: string | undefined): GameState => {
+  const gameState = {
+    type: 'review' as const,
     players: [],
     boardSize: 5,
     mainBranch: [],
   }
+  if (sgfText === undefined) {
+    return gameState
+  }
+  const baseText = sgfText.split('\n').join('').replace(/^\(/, '').replace(/\)$/, '') // join newlines, trim surrounding parentheses
+  let gameType, variant, event, firstPlayer, secondPlayer, origin, remaining
+  ;[gameType, remaining] = baseText.split(/(?<=FF\[[^\]]*\])/) // use lookbehind assertion to avoid removing the match with .split()
+
+  if (!gameType?.toLowerCase().includes('conhex')) {
+    throw new Error('Loaded game does not match expected format (SGF FF field is not CONHEX).')
+  }
+
+  ;[variant, remaining] = remaining!.split(/(?<=VA\[[^\]]*\])/)
+
+  if (!variant?.toLowerCase().includes('conhex')) {
+    throw new Error(
+      "Loaded game's variation does not match expected format (SGF VA field is not CONHEX)"
+    )
+  }
+
+  // TODO: add player fields to gameState
+  // TODO: if order becomes a problem, use a map object for matches
+  ;[event, remaining] = remaining!.split(/(?<=EV\[[^\]]*\])/).map((s) => s.trim())
+  ;[firstPlayer, remaining] = remaining!.split(/(?<=PB\[[^\]]*\])/).map((s) => s.trim())
+  ;[secondPlayer, remaining] = remaining!.split(/(?<=PW\[[^\]]*\])/).map((s) => s.trim())
+  ;[origin, remaining] = remaining!.split(/(?<=SO\[[^\]]*\])/).map((s) => s.trim())
+
+  const moves = remaining!.split(/(?<=;[BRW]\[[^\]]*?\])/)
+
+  console.log(
+    [gameType, variant, event, firstPlayer, secondPlayer, origin, moves.join('\n')].join('\n')
+  )
+
+  const mainBranch = moves
+    .map((s) => s.trim().match(/;([BRW])\[(.*)\]/) ?? undefined)
+    .map((matches) => matches?.slice(1)) // drop the full match and process only [player, coordinate] tuple, e.g. ["B", "J4"]
+    .filter((s) => s !== undefined && s[1] !== 'resign')
+    .map((s): Node => {
+      const state: NodeState = s![0] === 'B' ? 'first' : 'second'
+      const column = s![1]?.slice(0, 1)
+      const row = Number.parseInt(s![1]?.slice(1) ?? '', 10)
+
+      if (column === undefined || row === undefined || isNaN(row)) {
+        throw new Error(
+          `Can\'t parse move "${s}", should be in format ";B[D10]". Allowed colors are "B" for first player and "R" or "W" for second.`
+        )
+      }
+
+      return {
+        state,
+        x: column.toUpperCase().charCodeAt(0) - 64, // A => 1, B => 2, etc
+        y: gameState.boardSize * 2 + 2 - row, // reverse row since LG counts from bottom right but I from top left
+      }
+    })
+
+  return { ...gameState, mainBranch }
 }
 
 /** Try to read following game:
