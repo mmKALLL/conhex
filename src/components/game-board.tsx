@@ -58,7 +58,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
   const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
   // Firebase
-  const firebaseGameId = 'Pf2JJAfk3Bv6smP5MC01'
+  const firebaseGameId = originalMoves.length === 0 ? 'Pf2JJAfk3Bv6smP5MC01' : undefined
   const db = getFirestore()
   const dbConverter = {
     toFirestore(data: { moves: Node[]; tiles: Tile[]; branch: Node[] }): DocumentData {
