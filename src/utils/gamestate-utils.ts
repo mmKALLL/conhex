@@ -1,13 +1,13 @@
-import { Node } from './board-utils'
+import { Node, NodeState } from './board-utils'
 
-type Player = {
+export type Player = {
   name: string
   rating: number
   wins: Player[]
   losses: Player[]
 }
 
-type GameState = {
+export type GameState = {
   type: 'ongoing' | 'ended' | 'review'
   players: Player[]
   boardSize: number
