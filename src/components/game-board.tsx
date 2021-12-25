@@ -18,6 +18,7 @@ import {
   setDoc,
   SnapshotOptions,
 } from 'firebase/firestore'
+import { GameState } from '../utils/gamestate-utils'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
 
@@ -30,8 +31,8 @@ const tileColors: Record<NodeState, string> = {
 
 const colors: Record<ColorKey, string> = {
   empty: '#FFF',
-  first: '#00F', // first player move
-  second: '#F00', // second player move
+  first: '#00F', // first player move (blue)
+  second: '#F00', // second player move (red)
   stroke: '#888', // stroke color for vertices or "lines" surrounding tiles
   background: '#FFF',
   selected: '#0F0',
@@ -40,12 +41,13 @@ const colors: Record<ColorKey, string> = {
 
 export type GameBoardProps = {
   size: number // in number of tiles surrounding the perimeter of the board
+  initialState: GameState | undefined // State to initialize board with instead of Firebase. Used when loading a game in book, from URL, or Little Golem
 }
 
-export function GameBoard({ size }: GameBoardProps) {
-  const originalMoves = useMemo<Node[]>(() => [], []) // TODO: Will eventually be used when loading a game in book, from URL, or Little Golem
-  const [currentBranch, setCurrentBranch] = useState<Node[]>([])
-  const [moves, setMoves] = useState<Node[]>([])
+export function GameBoard({ size, initialState }: GameBoardProps) {
+  const originalMoves = useMemo<Node[]>(() => initialState?.mainBranch ?? [], [])
+  const [currentBranch, setCurrentBranch] = useState<Node[]>(originalMoves)
+  const [moves, setMoves] = useState<Node[]>(originalMoves)
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
 
   const radius = 28
