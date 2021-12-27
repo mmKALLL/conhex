@@ -1,15 +1,33 @@
 import React from 'react'
-import { readGame } from '../utils/gamestate-utils'
+import { GameState, readGame } from '../utils/gamestate-utils'
+import { isDefined } from '../utils/type-utils'
 import { GameBoard } from './game-board'
 
-export function GameScreen({}) {
+export function GameScreen() {
+
+  const queryParams = new URL(window.location.href).searchParams
+  const gameType = queryParams.get('type')?.toLowerCase()
+  const sgf = queryParams.get('sgf')
+
+  let initialState: GameState | undefined = undefined
+
+  if (isDefined(gameType) && gameType !== 'lg') {
+    console.error('Unknown game type, only "lg" is supported. Received value:', gameType)
+  }
+
+  if (gameType === 'lg') {
+    if (isDefined(sgf)) {
+      initialState = readGame(sgf)
+    } else {
+      console.error('Game type is "lg", but no sgf query parameter was passed.')
+    }
+  }
+
   return (
     <div className="game-screen">
-      <GameBoard size={5} initialState={readGame(`(;FF[CONHEX]VA[CONHEX]EV[conhex.ch.21.1.1]PB[David Milne]PW[leandro ?]SO[https://www.littlegolem.net];
-B[J3];R[H5];B[I6];R[I8];B[H7];R[I4];B[J4];R[I7];B[H6];R[J6];B[I5];R[G9];B[E8];R[F8];B[C10];R[D9];B[C8];
-R[B8];B[B9];R[D6];B[D7];R[F7];B[G8];R[F9];B[C5];R[C6];B[D5];R[E3];B[C2];R[C4];B[D3];R[resign])`)} />
+      <GameBoard size={5} initialState={initialState} />
       <p>
-        Version 0.6.0
+        Version 0.6.1
         {/* TODO: Fix formatting with CSS */}
         <br />
         <br />

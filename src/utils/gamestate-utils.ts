@@ -43,7 +43,7 @@ export const readGame = (sgfText: string | undefined): GameState => {
   }
 
   // TODO: add player fields to gameState
-  // TODO: if order becomes a problem, use a map object for matches
+  // TODO: if field order becomes a problem, use a map object for matches
   ;[event, remaining] = remaining!.split(/(?<=EV\[[^\]]*\])/).map((s) => s.trim())
   ;[firstPlayer, remaining] = remaining!.split(/(?<=PB\[[^\]]*\])/).map((s) => s.trim())
   ;[secondPlayer, remaining] = remaining!.split(/(?<=PW\[[^\]]*\])/).map((s) => s.trim())
