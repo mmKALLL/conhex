@@ -49,14 +49,13 @@ export const readGame = (sgfText: string | undefined): GameState => {
   ;[secondPlayer, remaining] = remaining!.split(/(?<=PW\[[^\]]*\])/).map((s) => s.trim())
   ;[origin, remaining] = remaining!.split(/(?<=SO\[[^\]]*\])/).map((s) => s.trim())
 
-  const moves = remaining!.split(/(?<=;[BRW]\[[^\]]*?\])/)
+  const moves = remaining!.split(/(?<=;.*?[BRW]\[a[^\]]*?\])/)
 
   console.log(
     [gameType, variant, event, firstPlayer, secondPlayer, origin, moves.join('\n')].join('\n')
   )
 
-  const mainBranch = moves
-    .map((s) => s.trim().match(/;([BRW])\[(.*)\]/) ?? undefined)
+    .map((s) => s.trim().match(/;.*?a([BRW])\[(.*)\]/) ?? undefined)
     .map((matches) => matches?.slice(1)) // drop the full match and process only [player, coordinate] tuple, e.g. ["B", "J4"]
     .filter((s) => s !== undefined && s[1] !== 'resign')
     .map((s): Node => {
