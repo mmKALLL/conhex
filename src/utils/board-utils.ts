@@ -20,12 +20,11 @@ const emptyTile: Tile = {
   state: 'empty' as const,
 }
 
+// Convert boardSize to the coordinate size
+export const getBoardCoordinateSize = (boardSize: number): number => boardSize * 2 + 2
+
 // Rotate a point 90 degrees clockwise
-const rotateClockwise = <T extends Point>(
-  position: T,
-  rotations: number,
-  size: number = 5
-): T => {
+const rotateClockwise = <T extends Point>(position: T, rotations: number, size: number = 5): T => {
   const rotate = (p: Point) => ({
     x: p.y,
     y: -p.x,
@@ -98,12 +97,10 @@ const getQuadrantTiles = (rotations: number, size: number = 5): Tile[] => {
   const horizTileNodes = getTileNodes(horizPoints, 2, 1, size)
 
   // Finally rotate the whole thing
-  const allTiles = diagTileNodes
-    .concat(horizTileNodes)
-    .map((tile) => ({
-      ...tile,
-      center: { x: tile.position.x + 1, y: tile.position.y + 0.5 },
-    }))
+  const allTiles = diagTileNodes.concat(horizTileNodes).map((tile) => ({
+    ...tile,
+    center: { x: tile.position.x + 1, y: tile.position.y + 0.5 },
+  }))
   const rotatedTiles = allTiles.map((t) => ({
     position: rotateClockwise(t.position, rotations, size),
     center: rotateClockwise(t.center, rotations, size),
@@ -160,14 +157,18 @@ export const getInitialTiles = (size: number = 5): Tile[] => {
 }
 
 // Fake nodes first, these are not playable but needed for rendering edges
-const fakeEdge = (size: number): Node[] => Array(size - 1).fill(0).map((_, i) => ({ x: 3 + i * 2, y: 1, state: 'fake' }))
-const fakeNodePoints = (size: number): Node[] => [0, 1, 2, 3]
-  .map((rotations) => fakeEdge(size).map((p) => rotateClockwise(p, rotations, size)))
-  .flat(1)
+const fakeEdge = (size: number): Node[] =>
+  Array(size - 1)
+    .fill(0)
+    .map((_, i) => ({ x: 3 + i * 2, y: 1, state: 'fake' }))
+const fakeNodePoints = (size: number): Node[] =>
+  [0, 1, 2, 3]
+    .map((rotations) => fakeEdge(size).map((p) => rotateClockwise(p, rotations, size)))
+    .flat(1)
 
 // Then the playable points
-export const defaultNodePoints: Node[] = ([
-// (size: number): Node[] => Array(size).fill(0).map((_, i) =>  [
+export const defaultNodePoints: Node[] = [
+  // (size: number): Node[] => Array(size).fill(0).map((_, i) =>  [
   { x: 1, y: 11, state: 'empty' },
   { x: 1, y: 1, state: 'empty' },
   { x: 2, y: 9, state: 'empty' },
@@ -238,4 +239,3 @@ export const defaultNodePoints: Node[] = ([
   { x: 11, y: 11, state: 'empty' },
   { x: 11, y: 1, state: 'empty' },
 ]
-)
