@@ -80,13 +80,13 @@ export const readGame = (sgfText: string | undefined): GameState => {
   return { ...gameState, mainBranch }
 }
 
-/** Try to read following game:
+/** Try to read following game (https://www.littlegolem.net/jsp/game/game.jsp?gid=2203451):
  * (;FF[CONHEX]VA[CONHEX]EV[conhex.ch.21.1.1]PB[David Milne]PW[leandro ?]SO[https://www.littlegolem.net];
  * B[J3];R[H5];B[I6];R[I8];B[H7];R[I4];B[J4];R[I7];B[H6];R[J6];B[I5];R[G9];B[E8];R[F8];B[C10];R[D9];B[C8];
  * R[B8];B[B9];R[D6];B[D7];R[F7];B[G8];R[F9];B[C5];R[C6];B[D5];R[E3];B[C2];R[C4];B[D3];R[resign])
  */
 
-/** With swap:
+/** With swap (https://www.littlegolem.net/jsp/game/game.jsp?gid=2169205):
  * (;FF[CONHEX]VA[CONHEX]EV[conhex.ch.26.1.1]PB[David Milne]PW[mmKALLL]SO[https://www.littlegolem.net]
  * ;B[J3];R[swap];B[J9];R[G4];B[J3];R[J5];B[J4];R[J6];B[E4];R[E6];B[F5];R[H7];B[D7];R[E9];B[B9];R[B8]
  * ;B[D9];R[D10];B[F8];R[G8];B[F9];R[E8];B[resign])
