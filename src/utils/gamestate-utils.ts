@@ -92,8 +92,16 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
  * R[B8];B[B9];R[D6];B[D7];R[F7];B[G8];R[F9];B[C5];R[C6];B[D5];R[E3];B[C2];R[C4];B[D3];R[resign])
  */
 
-/** With swap (https://www.littlegolem.net/jsp/game/game.jsp?gid=2169205):
+/** With swap:
+ * https://www.littlegolem.net/jsp/game/game.jsp?gid=2169205
+ * (;FF[CONHEX]VA[CONHEX]EV[conhex.ch.19.1.1]PB[David Milne]PW[mmKALLL]SO[https://www.littlegolem.net]
+ * ;B[J3];R[swap];B[J9];R[G4];B[J3];R[I6];B[J6];R[J5];B[J4];R[J7];B[I5];R[I7];B[H5];R[E9];B[H7];R[G9]
+ * ;B[B9];R[B8];B[H9];R[G8];B[A11];R[B7];B[D9];R[C8];B[resign])
+ *
+ * https://www.littlegolem.net/jsp/game/game.jsp?gid=2273728
  * (;FF[CONHEX]VA[CONHEX]EV[conhex.ch.26.1.1]PB[David Milne]PW[mmKALLL]SO[https://www.littlegolem.net]
  * ;B[J3];R[swap];B[J9];R[G4];B[J3];R[J5];B[J4];R[J6];B[E4];R[E6];B[F5];R[H7];B[D7];R[E9];B[B9];R[B8]
  * ;B[D9];R[D10];B[F8];R[G8];B[F9];R[E8];B[resign])
+ *
+ *
  */
