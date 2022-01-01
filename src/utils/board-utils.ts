@@ -1,6 +1,7 @@
 export type Point = { x: number; y: number }
 export type NodeState = 'empty' | 'first' | 'second' | 'fake'
 export type Node = Point & { state: NodeState }
+export type Move = Node | { state: 'resign' | 'swap' }
 export type Tile = {
   position: Point
   center: Point // not actual center; approximate needed for constructing convex hull when rendering

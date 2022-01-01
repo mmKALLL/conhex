@@ -1,4 +1,7 @@
-import { Node, NodeState } from './board-utils'
+import { getBoardCoordinateSize, Move, Node, NodeState } from './board-utils'
+import { assertNever, isDefined, isNode } from './type-utils'
+
+export type GameOrigin = 'conhex.com' | 'little-golem'
 
 export type Player = {
   name: string
@@ -9,17 +12,21 @@ export type Player = {
 
 export type GameState = {
   type: 'ongoing' | 'ended' | 'review'
+  origin: GameOrigin
   players: Player[]
   boardSize: number
-  mainBranch: Node[]
+  mainBranch: Move[]
+}
+
 }
 
 // Only Little Golem style support right now. Good to note that their SGFs always have the same fields in the same order. See examples below.
 // NOTE: Board coordinates start from bottom left on LG
-export const readGame = (sgfText: string | undefined): GameState => {
+export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameState => {
   const gameState = {
     type: 'review' as const,
     players: [],
+    origin,
     boardSize: 5,
     mainBranch: [],
   }
@@ -27,7 +34,7 @@ export const readGame = (sgfText: string | undefined): GameState => {
     return gameState
   }
   const baseText = sgfText.split('\n').join('').replace(/^\(/, '').replace(/\)$/, '') // join newlines, trim surrounding parentheses
-  let gameType, variant, event, firstPlayer, secondPlayer, origin, remaining
+  let gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, remaining
   ;[gameType, remaining] = baseText.split(/(?<=FF\[[^\]]*\])/) // use lookbehind assertion to avoid removing the match with .split()
 
   if (!gameType?.toLowerCase().includes('conhex')) {
@@ -47,12 +54,12 @@ export const readGame = (sgfText: string | undefined): GameState => {
   ;[event, remaining] = remaining!.split(/(?<=EV\[[^\]]*\])/).map((s) => s.trim())
   ;[firstPlayer, remaining] = remaining!.split(/(?<=PB\[[^\]]*\])/).map((s) => s.trim())
   ;[secondPlayer, remaining] = remaining!.split(/(?<=PW\[[^\]]*\])/).map((s) => s.trim())
-  ;[origin, remaining] = remaining!.split(/(?<=SO\[[^\]]*\])/).map((s) => s.trim())
+  ;[sgfOrigin, remaining] = remaining!.split(/(?<=SO\[[^\]]*\])/).map((s) => s.trim())
 
   const moves = remaining!.split(/(?<=;.*?[BRW]\[a[^\]]*?\])/)
 
   console.log(
-    [gameType, variant, event, firstPlayer, secondPlayer, origin, moves.join('\n')].join('\n')
+    [gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, moves.join('\n')].join('\n')
   )
 
     .map((s) => s.trim().match(/;.*?a([BRW])\[(.*)\]/) ?? undefined)

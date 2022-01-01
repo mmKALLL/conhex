@@ -18,7 +18,8 @@ import {
   setDoc,
   SnapshotOptions,
 } from 'firebase/firestore'
-import { GameState } from '../utils/gamestate-utils'
+import { GameState, gameStateToNodes } from '../utils/gamestate-utils'
+import { isDefined } from '../utils/type-utils'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
 
@@ -45,7 +46,7 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({ size, initialState }: GameBoardProps) {
-  const originalMoves = useMemo<Node[]>(() => initialState?.mainBranch ?? [], [])
+  const originalMoves = useMemo<Node[]>(() => isDefined(initialState) ? gameStateToNodes(initialState) : [], [])
   const [currentBranch, setCurrentBranch] = useState<Node[]>(originalMoves)
   const [moves, setMoves] = useState<Node[]>(originalMoves)
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))

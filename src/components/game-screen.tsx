@@ -11,15 +11,15 @@ export function GameScreen() {
 
   let initialState: GameState | undefined = undefined
 
-  if (isDefined(gameType) && gameType !== 'lg') {
-    console.error('Unknown game type, only "lg" is supported. Received value:', gameType)
+  if (isDefined(gameType) && gameType !== 'little-golem') {
+    console.error('Unknown game type, only "little-golem" is supported. Received value:', gameType)
   }
 
-  if (gameType === 'lg') {
+  if (gameType === 'little-golem') {
     if (isDefined(sgf)) {
-      initialState = readGame(sgf)
+      initialState = readGame(sgf, gameType)
     } else {
-      console.error('Game type is "lg", but no sgf query parameter was passed.')
+      console.error(`Game type is ${gameType}, but no sgf query parameter was passed.`)
     }
   }
 
@@ -27,7 +27,7 @@ export function GameScreen() {
     <div className="game-screen">
       <GameBoard size={5} initialState={initialState} />
       <p>
-        Version 0.6.1
+        Version 0.6.4
         {/* TODO: Fix formatting with CSS */}
         <br />
         <br />
