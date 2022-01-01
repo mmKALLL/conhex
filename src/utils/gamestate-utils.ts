@@ -18,6 +18,29 @@ export type GameState = {
   mainBranch: Move[]
 }
 
+export const gameStateToNodes = (gameState: GameState): Node[] => {
+  const moves = gameState.mainBranch
+  const nodes = moves.filter(isNode)
+  if (moves.length >= 2 && moves[1]?.state === 'swap') {
+    const firstMove = nodes[0]
+    if (isDefined(firstMove)) {
+      nodes[0] = {
+        state: firstMove.state === 'first' ? 'second' : 'first',
+        x:
+          gameState.origin === 'conhex.com'
+            ? firstMove.y
+            : gameState.origin === 'little-golem'
+            ? getBoardCoordinateSize(gameState.boardSize) - firstMove.y
+            : assertNever(gameState.origin),
+        y: firstMove.x,
+      }
+    } else {
+      throw new Error(
+        `Could not convert swap move into board coordinates, received moves: ${moves}, but firstMove was not defined.`
+      )
+    }
+  }
+  return nodes
 }
 
 // Only Little Golem style support right now. Good to note that their SGFs always have the same fields in the same order. See examples below.
@@ -62,26 +85,29 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
     [gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, moves.join('\n')].join('\n')
   )
 
+  const allMoves = moves
     .map((s) => s.trim().match(/;.*?a([BRW])\[(.*)\]/) ?? undefined)
     .map((matches) => matches?.slice(1)) // drop the full match and process only [player, coordinate] tuple, e.g. ["B", "J4"]
-    .filter((s) => s !== undefined && s[1] !== 'resign')
-    .map((s): Node => {
-      const state: NodeState = s![0] === 'B' ? 'first' : 'second'
-      const column = s![1]?.slice(0, 1)
-      const row = Number.parseInt(s![1]?.slice(1) ?? '', 10)
+  const mainBranch = allMoves.filter(isDefined).map((s): Move => {
+    if (s[1] === 'resign' || s[1] === 'swap') {
+      return { state: s[1] }
+    }
+    const state: NodeState = s[0] === 'B' ? 'first' : 'second'
+    const column = s[1]?.slice(0, 1)
+    const row = Number.parseInt(s[1]?.slice(1) ?? '', 10)
 
-      if (column === undefined || row === undefined || isNaN(row)) {
-        throw new Error(
-          `Can\'t parse move "${s}", should be in format ";B[D10]". Allowed colors are "B" for first player and "R" or "W" for second.`
-        )
-      }
+    if (column === undefined || row === undefined || isNaN(row)) {
+      throw new Error(
+        `Can\'t parse state from "${s}", input move should be in format ";B[D10]". Allowed colors are "B" for first player and "R" or "W" for second.`
+      )
+    }
 
-      return {
-        state,
-        x: column.toUpperCase().charCodeAt(0) - 64, // A => 1, B => 2, etc
-        y: gameState.boardSize * 2 + 2 - row, // reverse row since LG counts from bottom right but I from top left
-      }
-    })
+    return {
+      state,
+      x: column.toUpperCase().charCodeAt(0) - 64, // A => 1, B => 2, etc
+      y: gameState.boardSize * 2 + 2 - row, // reverse row since LG counts from bottom right but I from top left
+    }
+  })
 
   return { ...gameState, mainBranch }
 }
