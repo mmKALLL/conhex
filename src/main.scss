@@ -25,6 +25,16 @@ section {
   margin-top: 5vh;
 }
 
+.game-board {
+  display: flex;
+  flex-direction: row;
+}
+
+.move-list {
+  min-width: 3em;
+  margin: 0 1em;
+}
+
 .board-buttons {
   padding: 1em 0;
   display: flex;

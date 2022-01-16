@@ -4,7 +4,6 @@ import { isDefined } from '../utils/type-utils'
 import { GameBoard } from './game-board'
 
 export function GameScreen() {
-
   const queryParams = new URL(window.location.href).searchParams
   const gameType = queryParams.get('type')?.toLowerCase()
   const sgf = queryParams.get('sgf')
@@ -25,9 +24,9 @@ export function GameScreen() {
 
   return (
     <div className="game-screen">
-      <GameBoard size={5} initialState={initialState} />
+      <GameBoard boardSize={5} initialState={initialState} />
       <p>
-        Version 0.6.4
+        Version 0.6.8
         {/* TODO: Fix formatting with CSS */}
         <br />
         <br />

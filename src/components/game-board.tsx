@@ -189,7 +189,8 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
   })
 
   return (
-    <section>
+    <section className="game-board">
+      <div className="board-wrapper">
       <div style={{ height: boardRenderSize * boardZoom }}>
         <svg
           className="no-select"
@@ -265,6 +266,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
         >
           Reset
         </button>
+      </div>
       </div>
       <ol className="move-list">
         {moves.map((move, i) => <li key={i}>{isSpecialMove(move) ? move.state : getMoveCoordinateString(move, initialState?.origin, boardSize) }</li>)}
