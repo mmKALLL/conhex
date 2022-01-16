@@ -8,7 +8,7 @@ import {
   NodeState,
   Point,
   Move,
-  getMoveCoordinateString
+  getMoveCoordinateString,
 } from '../utils/board-utils'
 import { BoardTile } from './board-tile'
 import {
@@ -48,7 +48,10 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({ boardSize, initialState }: GameBoardProps) {
-  const originalMoves = useMemo<Move[]>(() => isDefined(initialState) ? initialState.mainBranch : [], [])
+  const originalMoves = useMemo<Move[]>(
+    () => (isDefined(initialState) ? initialState.mainBranch : []),
+    []
+  )
   const [currentBranch, setCurrentBranch] = useState<Move[]>(originalMoves)
   const [moves, setMoves] = useState<Move[]>(originalMoves)
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(boardSize))
@@ -142,7 +145,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
 
     const lastMove = moves[moves.length - 1]
     const newState =
-      lastMove && (lastMove.state === 'first') ? ('second' as const) : ('first' as const)
+      lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
     const newMoves = [...moves, { ...node, state: newState }]
     const newTiles = tiles
       // Update tiles' individual nodes' state
@@ -191,85 +194,91 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
   return (
     <section className="game-board">
       <div className="board-wrapper">
-      <div style={{ height: boardRenderSize * boardZoom }}>
-        <svg
-          className="no-select"
-          viewBox="0 0 1202 1202"
-          style={{ position: 'relative', top: 0, left: 0, transformOrigin: 'top left' }}
-          width={boardRenderSize}
-          height={boardRenderSize}
-          transform={`scale(${boardZoom})`}
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <BoardBase5
-            strokeWidth={strokeWidth}
-            tiles={tiles}
-            scale={scale}
-            boardCenter={{ x: 6, y: 6 }}
-          />
-
-          {/** Selection border */}
-          {moves.length > 0 && isPlayedMove(moves[moves.length - 1]) && (
-            <circle
-              cx={(moves[moves.length - 1] as Node).x * scale}
-              cy={(moves[moves.length - 1] as Node).y * scale}
-              r={radius * 1.8}
-              stroke="#ffffff"
-              strokeWidth="0"
-              fill={colors.selected}
-              opacity="0.35"
-            />
-          )}
-
-          {/* Empty nodes with click handler */}
-          {defaultNodePoints.map((n, i) => (
-            <BoardNode
-              key={i}
-              x={n.x * scale}
-              y={n.y * scale}
-              state={n.state}
-              fill={colors[n.state]}
-              radius={radius}
-              stroke="#808080"
+        <div style={{ height: boardRenderSize * boardZoom }}>
+          <svg
+            className="no-select"
+            viewBox="0 0 1202 1202"
+            style={{ position: 'relative', top: 0, left: 0, transformOrigin: 'top left' }}
+            width={boardRenderSize}
+            height={boardRenderSize}
+            transform={`scale(${boardZoom})`}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <BoardBase5
               strokeWidth={strokeWidth}
-              onClick={(e) => handleMove(e, n)}
+              tiles={tiles}
+              scale={scale}
+              boardCenter={{ x: 6, y: 6 }}
             />
-          ))}
 
-          {/* Circles for existing moves */}
-          {moves.filter(isPlayedMove).map((n, i) => (
-            <BoardNode
-              key={i + '-move'}
-              state={n.state}
-              x={n.x * scale}
-              y={n.y * scale}
-              fill={colors[n.state]}
-              radius={radius}
-              stroke="#808080"
-              strokeWidth={strokeWidth}
-              onClick={() => {}}
-              style={{ cursor: 'default' }}
-            />
-          ))}
-        </svg>
-      </div>
-      <div className="board-buttons">
-        <button onClick={() => jumpToMove(1)}>&lt;&lt; First</button>
-        <button onClick={() => jumpToMove(moves.length - 1)}>&lt; Prev</button>
-        <button onClick={() => jumpToMove(moves.length + 1)}>&gt; Next</button>
-        <button onClick={() => jumpToMove(currentBranch.length)}>&gt;&gt; Last</button>
-        <button
-          onClick={() => {
-            setCurrentBranch(originalMoves)
-            jumpToMove(originalMoves.length, { resetBranch: true })
-          }}
-        >
-          Reset
-        </button>
-      </div>
+            {/** Selection border */}
+            {moves.length > 0 && isPlayedMove(moves[moves.length - 1]) && (
+              <circle
+                cx={(moves[moves.length - 1] as Node).x * scale}
+                cy={(moves[moves.length - 1] as Node).y * scale}
+                r={radius * 1.8}
+                stroke="#ffffff"
+                strokeWidth="0"
+                fill={colors.selected}
+                opacity="0.35"
+              />
+            )}
+
+            {/* Empty nodes with click handler */}
+            {defaultNodePoints.map((n, i) => (
+              <BoardNode
+                key={i}
+                x={n.x * scale}
+                y={n.y * scale}
+                state={n.state}
+                fill={colors[n.state]}
+                radius={radius}
+                stroke="#808080"
+                strokeWidth={strokeWidth}
+                onClick={(e) => handleMove(e, n)}
+              />
+            ))}
+
+            {/* Circles for existing moves */}
+            {moves.filter(isPlayedMove).map((n, i) => (
+              <BoardNode
+                key={i + '-move'}
+                state={n.state}
+                x={n.x * scale}
+                y={n.y * scale}
+                fill={colors[n.state]}
+                radius={radius}
+                stroke="#808080"
+                strokeWidth={strokeWidth}
+                onClick={() => {}}
+                style={{ cursor: 'default' }}
+              />
+            ))}
+          </svg>
+        </div>
+        <div className="board-buttons">
+          <button onClick={() => jumpToMove(1)}>&lt;&lt; First</button>
+          <button onClick={() => jumpToMove(moves.length - 1)}>&lt; Prev</button>
+          <button onClick={() => jumpToMove(moves.length + 1)}>&gt; Next</button>
+          <button onClick={() => jumpToMove(currentBranch.length)}>&gt;&gt; Last</button>
+          <button
+            onClick={() => {
+              setCurrentBranch(originalMoves)
+              jumpToMove(originalMoves.length, { resetBranch: true })
+            }}
+          >
+            Reset
+          </button>
+        </div>
       </div>
       <ol className="move-list">
-        {moves.map((move, i) => <li key={i}>{isSpecialMove(move) ? move.state : getMoveCoordinateString(move, initialState?.origin, boardSize) }</li>)}
+        {moves.map((move, i) => (
+          <li key={i}>
+            {isSpecialMove(move)
+              ? move.state
+              : getMoveCoordinateString(move, initialState?.origin, boardSize)}
+          </li>
+        ))}
       </ol>
     </section>
   )
