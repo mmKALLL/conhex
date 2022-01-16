@@ -20,7 +20,7 @@ import {
   setDoc,
   SnapshotOptions,
 } from 'firebase/firestore'
-import { GameState } from '../utils/gamestate-utils'
+import { computeSwapMove, GameState } from '../utils/gamestate-utils'
 import { isDefined, isPlayedMove, isSpecialMove } from '../utils/type-utils'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
@@ -139,8 +139,13 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     { moves, tiles }: { moves: Move[]; tiles: Tile[] }
   ): { newMoves: Move[]; newTiles: Tile[] } => {
     if (isSpecialMove(node)) {
-      // if (node.state === 'swap')
-      return { newMoves: moves, newTiles: tiles } // FIXME
+      if (node.state === 'swap' && isPlayedMove(moves[0])) {
+        return {
+          newMoves: [computeSwapMove(moves[0], boardSize, initialState?.origin), node],
+          newTiles: tiles,
+        }
+      }
+      return { newMoves: moves.concat(node), newTiles: tiles }
     }
 
     const lastMove = moves[moves.length - 1]
@@ -276,7 +281,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
           <li key={i}>
             {isSpecialMove(move)
               ? move.state
-              : getMoveCoordinateString(move, initialState?.origin, boardSize)}
+              : getMoveCoordinateString(move, boardSize, initialState?.origin)}
           </li>
         ))}
       </ol>

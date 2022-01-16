@@ -27,8 +27,8 @@ const emptyTile: Tile = {
 
 export const getMoveCoordinateString = (
   node: Node,
-  origin: GameOrigin | undefined,
-  boardSize: number
+  boardSize: number,
+  origin: GameOrigin | undefined
 ) =>
   origin === undefined || origin === 'conhex.com'
     ? `${String.fromCharCode(64 + node.y)}${node.x}`

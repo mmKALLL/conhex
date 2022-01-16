@@ -18,8 +18,12 @@ export type GameState = {
   mainBranch: Move[]
 }
 
-export const computeSwapMove = (node: Node, boardSize: number, origin: GameOrigin): Node => {
-  if (origin === 'conhex.com') {
+export const computeSwapMove = (
+  node: Node,
+  boardSize: number,
+  origin: GameOrigin | undefined
+): Node => {
+  if (origin === undefined || origin === 'conhex.com') {
     // Reflect along the diagonal from top-left to bottom-right
     return {
       state: node.state === 'first' ? 'second' : 'first',
