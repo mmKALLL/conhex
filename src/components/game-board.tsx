@@ -266,6 +266,9 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
           Reset
         </button>
       </div>
+      <ol className="move-list">
+        {moves.map((move, i) => <li key={i}>{isSpecialMove(move) ? move.state : getMoveCoordinateString(move, initialState?.origin, boardSize) }</li>)}
+      </ol>
     </section>
   )
 }

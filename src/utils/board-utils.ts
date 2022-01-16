@@ -1,3 +1,6 @@
+import { GameOrigin } from './gamestate-utils'
+import { assertNever } from './type-utils'
+
 export type Point = { x: number; y: number }
 export type NodeState = 'empty' | 'first' | 'second' | 'fake'
 export type Node = Point & { state: NodeState }
@@ -21,6 +24,17 @@ const emptyTile: Tile = {
   neighbors: [],
   state: 'empty' as const,
 }
+
+export const getMoveCoordinateString = (
+  node: Node,
+  origin: GameOrigin | undefined,
+  boardSize: number
+) =>
+  origin === undefined || origin === 'conhex.com'
+    ? `${String.fromCharCode(64 + node.y)}${node.x}`
+    : origin === 'little-golem'
+    ? `${String.fromCharCode(64 + (getBoardCoordinateSize(boardSize) - node.y))}${node.x}` // Reversed Y axis
+    : assertNever(origin)
 
 // Convert boardSize to the coordinate size
 export const getBoardCoordinateSize = (boardSize: number): number => boardSize * 2 + 2
