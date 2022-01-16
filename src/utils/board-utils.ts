@@ -31,9 +31,9 @@ export const getMoveCoordinateString = (
   origin: GameOrigin | undefined
 ) =>
   origin === undefined || origin === 'conhex.com'
-    ? `${String.fromCharCode(64 + node.y)}${node.x}`
+    ? `${String.fromCharCode(64 + node.x)}${node.y}`
     : origin === 'little-golem'
-    ? `${String.fromCharCode(64 + (getBoardCoordinateSize(boardSize) - node.y))}${node.x}` // Reversed Y axis
+    ? `${String.fromCharCode(64 + node.x)}${getBoardCoordinateSize(boardSize) - node.y}` // X is alphabetical and Y axis is reversed
     : assertNever(origin)
 
 // Convert boardSize to the coordinate size
