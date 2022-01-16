@@ -3,9 +3,9 @@ import React from 'react'
 export function Footer() {
   return (
     <p className="footer">
-      This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book project.
+      This page will be used as part of a ConHex book project. Right now you can use it to play
+      games or analyze positions.
       <br />
-      Currently it features a Little Golem style board demo (with Richard's permission). <br />
       <br />
       Book draft available at:
       <br />
