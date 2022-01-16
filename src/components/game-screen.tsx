@@ -1,6 +1,7 @@
 import React from 'react'
 import { GameState, readGame } from '../utils/gamestate-utils'
 import { isDefined } from '../utils/type-utils'
+import { Footer } from './footer'
 import { GameBoard } from './game-board'
 
 export function GameScreen() {
@@ -26,25 +27,11 @@ export function GameScreen() {
     <div className="game-screen">
       <GameBoard boardSize={5} initialState={initialState} />
       <p>
-        Version 0.6.8
-        {/* TODO: Fix formatting with CSS */}
+        Version 0.7.2.
         <br />
-        <br />
-        <br />
-        <br />
-        This page will be used by Esa Koskinen (mmKALLL) as part of his ConHex book project.
-        <br />
-        Currently it features a Little Golem style board demo (with Richard's permission). <br />
-        <br />
-        Book draft available at:
-        <br />
-        <a
-          href="https://docs.google.com/document/d/12A8YN087o_tDDRz441If80GwMRLwgh5FRBScE4sE_RY/edit?usp=sharing"
-          target="_blank"
-        >
-          https://docs.google.com/document/d/12A8YN087o_tDDRz441If80GwMRLwgh5FRBScE4sE_RY/edit?usp=sharing
-        </a>
+        Made by Esa Koskinen (mmKALLL), with permission from Richard.
       </p>
+      {initialState === undefined && <Footer />}
     </div>
   )
 }

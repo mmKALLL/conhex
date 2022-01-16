@@ -71,7 +71,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
   }, [originalMoves])
 
   // Firebase
-  const firebaseGameId = originalMoves.length === 0 ? 'Pf2JJAfk3Bv6smP5MC01' : undefined
+  const firebaseGameId = undefined // TODO: originalMoves.length === 0 ? 'Pf2JJAfk3Bv6smP5MC01' : undefined
   const db = getFirestore()
   const dbConverter = {
     toFirestore(data: { moves: Node[]; tiles: Tile[]; branch: Node[] }): DocumentData {
