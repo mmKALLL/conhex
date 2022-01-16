@@ -7,6 +7,7 @@ import {
   Tile,
   NodeState,
   Point,
+  Move
 } from '../utils/board-utils'
 import { BoardTile } from './board-tile'
 import {
@@ -18,8 +19,8 @@ import {
   setDoc,
   SnapshotOptions,
 } from 'firebase/firestore'
-import { GameState, gameStateToNodes } from '../utils/gamestate-utils'
-import { isDefined } from '../utils/type-utils'
+import { GameState } from '../utils/gamestate-utils'
+import { isDefined, isPlayedMove, isSpecialMove } from '../utils/type-utils'
 
 type ColorKey = NodeState | 'stroke' | 'background' | 'selected'
 
@@ -46,9 +47,9 @@ export type GameBoardProps = {
 }
 
 export function GameBoard({ size, initialState }: GameBoardProps) {
-  const originalMoves = useMemo<Node[]>(() => isDefined(initialState) ? gameStateToNodes(initialState) : [], [])
-  const [currentBranch, setCurrentBranch] = useState<Node[]>(originalMoves)
-  const [moves, setMoves] = useState<Node[]>(originalMoves)
+  const originalMoves = useMemo<Move[]>(() => isDefined(initialState) ? initialState.mainBranch : [], [])
+  const [currentBranch, setCurrentBranch] = useState<Move[]>(originalMoves)
+  const [moves, setMoves] = useState<Move[]>(originalMoves)
   const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
 
   const radius = 28
@@ -99,7 +100,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
     return () => {}
   }, [firebaseGameId])
 
-  const updateFirebase = (newMoves: Node[], newTiles: Tile[], newBranch: Node[]) => {
+  const updateFirebase = (newMoves: Move[], newTiles: Tile[], newBranch: Move[]) => {
     if (firebaseGameId) {
       void setDoc(doc(db, `games/${firebaseGameId}`).withConverter(dbConverter), {
         moves: newMoves,
@@ -117,7 +118,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
     e.nativeEvent.stopImmediatePropagation()
     if (
       // no existing move with same coordinates
-      moves.findIndex((move) => move.x === node.x && move.y === node.y) === -1
+      moves.filter(isPlayedMove).findIndex((move) => move.x === node.x && move.y === node.y) === -1
     ) {
       const { newMoves, newTiles } = computeMove(node, { moves, tiles })
       setMoves(newMoves)
@@ -130,12 +131,17 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
   }
 
   const computeMove = (
-    node: Node,
-    { moves, tiles }: { moves: Node[]; tiles: Tile[] }
-  ): { newMoves: Node[]; newTiles: Tile[] } => {
+    node: Move,
+    { moves, tiles }: { moves: Move[]; tiles: Tile[] }
+  ): { newMoves: Move[]; newTiles: Tile[] } => {
+    if (isSpecialMove(node)) {
+      // if (node.state === 'swap')
+      return { newMoves: moves, newTiles: tiles } // FIXME
+    }
+
     const lastMove = moves[moves.length - 1]
     const newState =
-      lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
+      lastMove && (lastMove.state === 'first') ? ('second' as const) : ('first' as const)
     const newMoves = [...moves, { ...node, state: newState }]
     const newTiles = tiles
       // Update tiles' individual nodes' state
@@ -157,7 +163,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
     { resetBranch }: { resetBranch: boolean } = { resetBranch: false }
   ): void => {
     const branchSlice = currentBranch.slice(0, moveNumber)
-    const { newMoves, newTiles } = branchSlice.reduce<{ newMoves: Node[]; newTiles: Tile[] }>(
+    const { newMoves, newTiles } = branchSlice.reduce<{ newMoves: Move[]; newTiles: Tile[] }>(
       ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
       {
         newMoves: [],
@@ -201,10 +207,10 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
           />
 
           {/** Selection border */}
-          {moves.length > 0 && (
+          {moves.length > 0 && isPlayedMove(moves[moves.length - 1]) && (
             <circle
-              cx={moves[moves.length - 1]!.x * scale}
-              cy={moves[moves.length - 1]!.y * scale}
+              cx={(moves[moves.length - 1] as Node).x * scale}
+              cy={(moves[moves.length - 1] as Node).y * scale}
               r={radius * 1.8}
               stroke="#ffffff"
               strokeWidth="0"
@@ -229,7 +235,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
           ))}
 
           {/* Circles for existing moves */}
-          {moves.map((n, i) => (
+          {moves.filter(isPlayedMove).map((n, i) => (
             <BoardNode
               key={i + '-move'}
               state={n.state}
