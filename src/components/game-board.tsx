@@ -7,7 +7,8 @@ import {
   Tile,
   NodeState,
   Point,
-  Move
+  Move,
+  getMoveCoordinateString
 } from '../utils/board-utils'
 import { BoardTile } from './board-tile'
 import {
@@ -42,20 +43,20 @@ const colors: Record<ColorKey, string> = {
 }
 
 export type GameBoardProps = {
-  size: number // in number of tiles surrounding the perimeter of the board
+  boardSize: number // in number of tiles surrounding the perimeter of the board
   initialState: GameState | undefined // State to initialize board with instead of Firebase. Used when loading a game in book, from URL, or Little Golem
 }
 
-export function GameBoard({ size, initialState }: GameBoardProps) {
+export function GameBoard({ boardSize, initialState }: GameBoardProps) {
   const originalMoves = useMemo<Move[]>(() => isDefined(initialState) ? initialState.mainBranch : [], [])
   const [currentBranch, setCurrentBranch] = useState<Move[]>(originalMoves)
   const [moves, setMoves] = useState<Move[]>(originalMoves)
-  const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(size))
+  const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(boardSize))
 
   const radius = 28
   const strokeWidth = 7
 
-  const boardSize = 600
+  const boardRenderSize = 600
   const boardZoom = 1
   const scale = 100 // coordinate multiplier, based on rendering the logical (x,y) points using svg
 
@@ -88,7 +89,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
         (doc) => {
           // console.log('Current data: ', doc.data())
           const newMoves = doc.data()?.moves ?? []
-          const newTiles = doc.data()?.tiles ?? getInitialTiles(size)
+          const newTiles = doc.data()?.tiles ?? getInitialTiles(boardSize)
           const newBranch = doc.data()?.branch ?? []
           newMoves && setMoves(newMoves)
           newTiles && setTiles(newTiles)
@@ -167,7 +168,7 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
       ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
       {
         newMoves: [],
-        newTiles: getInitialTiles(size),
+        newTiles: getInitialTiles(boardSize),
       }
     )
     setMoves(newMoves)
@@ -189,13 +190,13 @@ export function GameBoard({ size, initialState }: GameBoardProps) {
 
   return (
     <section>
-      <div style={{ height: boardSize * boardZoom }}>
+      <div style={{ height: boardRenderSize * boardZoom }}>
         <svg
           className="no-select"
           viewBox="0 0 1202 1202"
           style={{ position: 'relative', top: 0, left: 0, transformOrigin: 'top left' }}
-          width={boardSize}
-          height={boardSize}
+          width={boardRenderSize}
+          height={boardRenderSize}
           transform={`scale(${boardZoom})`}
           xmlns="http://www.w3.org/2000/svg"
         >
