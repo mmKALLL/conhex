@@ -3,6 +3,7 @@ import { GameState, readGame } from '../utils/gamestate-utils'
 import { isDefined } from '../utils/type-utils'
 import { Footer } from './footer'
 import { GameBoard } from './game-board'
+import { Header } from './header'
 
 export function GameScreen() {
   const queryParams = new URL(window.location.href).searchParams
@@ -25,6 +26,7 @@ export function GameScreen() {
 
   return (
     <div className="game-screen">
+      <Header />
       <GameBoard boardSize={5} initialState={initialState} />
       <p>
         Version 0.7.2.
