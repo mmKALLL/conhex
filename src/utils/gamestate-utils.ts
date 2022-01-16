@@ -1,5 +1,5 @@
 import { getBoardCoordinateSize, Move, Node, NodeState } from './board-utils'
-import { assertNever, isDefined, isNode } from './type-utils'
+import { assertNever, isDefined } from './type-utils'
 
 export type GameOrigin = 'conhex.com' | 'little-golem'
 
@@ -18,29 +18,25 @@ export type GameState = {
   mainBranch: Move[]
 }
 
-export const gameStateToNodes = (gameState: GameState): Node[] => {
-  const moves = gameState.mainBranch
-  const nodes = moves.filter(isNode)
-  if (moves.length >= 2 && moves[1]?.state === 'swap') {
-    const firstMove = nodes[0]
-    if (isDefined(firstMove)) {
-      nodes[0] = {
-        state: firstMove.state === 'first' ? 'second' : 'first',
-        x:
-          gameState.origin === 'conhex.com'
-            ? firstMove.y
-            : gameState.origin === 'little-golem'
-            ? getBoardCoordinateSize(gameState.boardSize) - firstMove.y
-            : assertNever(gameState.origin),
-        y: firstMove.x,
-      }
-    } else {
-      throw new Error(
-        `Could not convert swap move into board coordinates, received moves: ${moves}, but firstMove was not defined.`
-      )
+export const computeSwapMove = (node: Node, boardSize: number, origin: GameOrigin): Node => {
+  if (origin === 'conhex.com') {
+    // Reflect along the diagonal from top-left to bottom-right
+    return {
+      state: node.state === 'first' ? 'second' : 'first',
+      x: node.y,
+      y: node.x,
     }
   }
-  return nodes
+  if (origin === 'little-golem') {
+    // Reflect along the diagonal from bottom-left to top-right
+    return {
+      state: node.state === 'first' ? 'second' : 'first',
+      x: getBoardCoordinateSize(boardSize) - node.y,
+      y: getBoardCoordinateSize(boardSize) - node.x,
+    }
+  }
+  // TODO: For Yucata, keep x and y the same but change state
+  assertNever(origin)
 }
 
 // Only Little Golem style support right now. Good to note that their SGFs always have the same fields in the same order. See examples below.
