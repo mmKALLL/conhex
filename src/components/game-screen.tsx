@@ -29,7 +29,7 @@ export function GameScreen() {
       <Header />
       <GameBoard boardSize={5} initialState={initialState} />
       <p>
-        Version 0.7.5.
+        Version 0.7.6.
         <br />
         Made by Esa Koskinen (mmKALLL), with permission from Richard.
       </p>
