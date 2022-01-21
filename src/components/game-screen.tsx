@@ -31,7 +31,8 @@ export function GameScreen() {
       <p>
         Version 0.7.7.
         <br />
-        Made by Esa Koskinen (mmKALLL), with permission from Richard.
+        Made by Esa Koskinen (mmKALLL). Using Little Golem board design with permission from
+        Richard.
       </p>
       {initialState === undefined && <Footer />}
     </div>
