@@ -171,7 +171,11 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     moveNumber: number,
     { resetBranch }: { resetBranch: boolean } = { resetBranch: false }
   ): void => {
-    const branchSlice = currentBranch.slice(0, moveNumber)
+    const branchSlice = resetBranch
+      ? originalMoves
+      : originalMoves.length > 1 && originalMoves[1]?.state === 'swap'
+      ? [...originalMoves.slice(0, 2), ...currentBranch.slice(2, moveNumber)]
+      : currentBranch.slice(0, moveNumber)
     const { newMoves, newTiles } = branchSlice.reduce<{ newMoves: Move[]; newTiles: Tile[] }>(
       ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
       {
@@ -179,9 +183,17 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
         newTiles: getInitialTiles(boardSize),
       }
     )
-    setMoves(newMoves)
-    setTiles(newTiles)
-    updateFirebase(newMoves, newTiles, resetBranch ? newMoves : currentBranch)
+
+    if (resetBranch) {
+      setMoves(newMoves)
+      setTiles(newTiles)
+      setCurrentBranch(newMoves)
+      updateFirebase(newMoves, newTiles, newMoves)
+    } else {
+      setMoves(newMoves)
+      setTiles(newTiles)
+      updateFirebase(newMoves, newTiles, currentBranch)
+    }
   }
 
   const updateTileStatus = (tile: Tile): Tile => ({
