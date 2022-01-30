@@ -52,9 +52,10 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     () => (isDefined(initialState) ? initialState.mainBranch : []),
     []
   )
+  const emptyTiles = useMemo(() => getInitialTiles(boardSize), [])
   const [currentBranch, setCurrentBranch] = useState<Move[]>(originalMoves)
   const [moves, setMoves] = useState<Move[]>(originalMoves)
-  const [tiles, setTiles] = useState<Tile[]>(getInitialTiles(boardSize))
+  const [tiles, setTiles] = useState<Tile[]>(emptyTiles)
 
   const radius = 28
   const strokeWidth = 7
@@ -92,7 +93,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
         (doc) => {
           // console.log('Current data: ', doc.data())
           const newMoves = doc.data()?.moves ?? []
-          const newTiles = doc.data()?.tiles ?? getInitialTiles(boardSize)
+          const newTiles = doc.data()?.tiles ?? emptyTiles
           const newBranch = doc.data()?.branch ?? []
           newMoves && setMoves(newMoves)
           newTiles && setTiles(newTiles)
@@ -140,9 +141,10 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
   ): { newMoves: Move[]; newTiles: Tile[] } => {
     if (isSpecialMove(node)) {
       if (node.state === 'swap' && isPlayedMove(moves[0])) {
+        const swappedMove = computeSwapMove(moves[0], boardSize, initialState?.origin)
         return {
-          newMoves: [computeSwapMove(moves[0], boardSize, initialState?.origin), node],
-          newTiles: tiles,
+          newMoves: [swappedMove, node],
+          newTiles: updateTilesForMove(swappedMove, swappedMove.state, emptyTiles),
         }
       }
       return { newMoves: moves.concat(node), newTiles: tiles }
@@ -152,17 +154,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     const newState =
       lastMove && lastMove.state === 'first' ? ('second' as const) : ('first' as const)
     const newMoves = [...moves, { ...node, state: newState }]
-    const newTiles = tiles
-      // Update tiles' individual nodes' state
-      .map((tile) => ({
-        ...tile,
-        nodes: tile.nodes.map((n) => ({
-          ...n,
-          state: n.x === node.x && n.y === node.y ? newState : n.state,
-        })),
-      }))
-      // Update tile state if majority has been won for the first time
-      .map(updateTileStatus)
+    const newTiles = updateTilesForMove(node, newState, tiles)
 
     return { newMoves, newTiles }
   }
@@ -180,7 +172,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
       ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
       {
         newMoves: [],
-        newTiles: getInitialTiles(boardSize),
+        newTiles: emptyTiles,
       }
     )
 
@@ -194,6 +186,22 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
       setTiles(newTiles)
       updateFirebase(newMoves, newTiles, currentBranch)
     }
+  }
+
+  const updateTilesForMove = (newNode: Node, newState: NodeState, tiles: Tile[]): Tile[] => {
+    return (
+      tiles
+        // Update tiles' individual nodes' state
+        .map((tile) => ({
+          ...tile,
+          nodes: tile.nodes.map((n) => ({
+            ...n,
+            state: n.x === newNode.x && n.y === newNode.y ? newState : n.state,
+          })),
+        }))
+        // Update tile state if majority has been won for the first time
+        .map(updateTileStatus)
+    )
   }
 
   const updateTileStatus = (tile: Tile): Tile => ({
