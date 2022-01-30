@@ -57,14 +57,23 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
     return gameState
   }
   const baseText = sgfText.split('\n').join('').replace(/^\(/, '').replace(/\)$/, '') // join newlines, trim surrounding parentheses
-  let gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, remaining
-  ;[gameType, remaining] = baseText.split(/(?<=FF\[[^\]]*\])/) // use lookbehind assertion to avoid removing the match with .split()
+  let gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, remaining, emptyGroup
+
+  // FIXME: Would want to use lookbehind to get rid of empty group, but it's not supported in Safari even in 2022...
+  ;[emptyGroup, gameType, remaining] = baseText.split(/(FF\[[^\]]*\])/) // use lookbehind assertion to avoid removing the match with .split()
+  ;[emptyGroup, variant, remaining] = remaining!.split(/(VA\[[^\]]*\])/)
+
+  // TODO: add player fields to gameState
+  // TODO: if field order becomes a problem, use a map object for matches
+  ;[emptyGroup, event, remaining] = remaining!.split(/(EV\[[^\]]*\])/).map((s) => s.trim())
+  ;[emptyGroup, firstPlayer, remaining] = remaining!.split(/(PB\[[^\]]*\])/).map((s) => s.trim())
+  ;[emptyGroup, secondPlayer, remaining] = remaining!.split(/(PW\[[^\]]*\])/).map((s) => s.trim())
+  ;[emptyGroup, sgfOrigin, remaining] = remaining!.split(/(SO\[[^\]]*\])/).map((s) => s.trim())
 
   if (!gameType?.toLowerCase().includes('conhex')) {
     throw new Error('Loaded game does not match expected format (SGF FF field is not CONHEX).')
   }
 
-  ;[variant, remaining] = remaining!.split(/(?<=VA\[[^\]]*\])/)
 
   if (!variant?.toLowerCase().includes('conhex')) {
     throw new Error(
@@ -72,17 +81,10 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
     )
   }
 
-  // TODO: add player fields to gameState
-  // TODO: if field order becomes a problem, use a map object for matches
-  ;[event, remaining] = remaining!.split(/(?<=EV\[[^\]]*\])/).map((s) => s.trim())
-  ;[firstPlayer, remaining] = remaining!.split(/(?<=PB\[[^\]]*\])/).map((s) => s.trim())
-  ;[secondPlayer, remaining] = remaining!.split(/(?<=PW\[[^\]]*\])/).map((s) => s.trim())
-  ;[sgfOrigin, remaining] = remaining!.split(/(?<=SO\[[^\]]*\])/).map((s) => s.trim())
-
-  const moves = remaining!.split(/(?<=;.*?[BRW]\[[^\]]*?\])/)
+  const moves = remaining!.split(/(;.*?[BRW]\[[^\]]*?\])/)
 
   console.log(
-    [gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, moves.join('\n')].join('\n')
+    [emptyGroup, gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, moves.join('\n')].join('\n')
   )
 
   const allMoves = moves
