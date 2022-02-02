@@ -29,7 +29,7 @@ export function GameScreen() {
       <Header />
       <GameBoard boardSize={5} initialState={initialState} />
       <p>
-        Version 0.8.1.
+        Version 0.8.2.
         <br />
         Made by Esa Koskinen (mmKALLL). Using Little Golem board design with permission from
         Richard.

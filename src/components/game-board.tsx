@@ -298,7 +298,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
       </div>
       <ol className="move-list">
         {moves.map((move, i) => (
-          <li key={i}>
+          <li key={i} onClick={() => (jumpToMove(i + 1))}>
             {isSpecialMove(move)
               ? move.state
               : getMoveCoordinateString(move, boardSize, initialState?.origin)}
