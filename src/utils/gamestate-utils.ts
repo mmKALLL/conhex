@@ -60,7 +60,7 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
   let gameType, variant, event, firstPlayer, secondPlayer, sgfOrigin, remaining, emptyGroup
 
   // FIXME: Would want to use lookbehind to get rid of empty group, but it's not supported in Safari even in 2022...
-  ;[emptyGroup, gameType, remaining] = baseText.split(/(FF\[[^\]]*\])/) // use lookbehind assertion to avoid removing the match with .split()
+  ;[emptyGroup, gameType, remaining] = baseText.split(/(FF\[[^\]]*\])/) // TODO: use lookbehind assertion to avoid removing the match with .split()
   ;[emptyGroup, variant, remaining] = remaining!.split(/(VA\[[^\]]*\])/)
 
   // TODO: add player fields to gameState
@@ -118,6 +118,13 @@ export const readGame = (sgfText: string | undefined, origin: GameOrigin): GameS
  * (;FF[CONHEX]VA[CONHEX]EV[conhex.ch.21.1.1]PB[David Milne]PW[leandro ?]SO[https://www.littlegolem.net];
  * B[J3];R[H5];B[I6];R[I8];B[H7];R[I4];B[J4];R[I7];B[H6];R[J6];B[I5];R[G9];B[E8];R[F8];B[C10];R[D9];B[C8];
  * R[B8];B[B9];R[D6];B[D7];R[F7];B[G8];R[F9];B[C5];R[C6];B[D5];R[E3];B[C2];R[C4];B[D3];R[resign])
+ */
+
+/**
+ *
+ *
+(;FF[CONHEX]VA[CONHEX]EV[none]PB[Player-1]PW[Player-2]SO[https://www.conhex.com];
+B[I10];R[I2];B[D5];R[C2];B[F3];R[E8];B[H7];R[G6];B[H6];R[G4];B[H5];R[G3];B[E3];R[F5];B[C8];R[C10];B[D9];R[E10];B[E9];R[F9];B[F10];R[G10];B[F8];R[G9];B[D6];R[I8];B[J8];R[J9];B[H9];R[H10];B[K11];R[I7];B[J7];R[J6];B[J5];R[I4];B[J4];R[I5];B[J3];R[K1];B[H2];R[G2];B[F2];R[E2]
  */
 
 /** With swap:
