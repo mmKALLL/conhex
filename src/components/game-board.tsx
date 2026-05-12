@@ -71,6 +71,41 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     }
   }, [originalMoves])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
+        return
+      }
+      switch (e.key.toLowerCase()) {
+        case 'f':
+          jumpToMove(1)
+          break
+        case 'p':
+          jumpToMove(moves.length - 1)
+          break
+        case 'n':
+          jumpToMove(moves.length + 1)
+          break
+        case 'l':
+          jumpToMove(currentBranch.length)
+          break
+        case 'r':
+          setCurrentBranch(originalMoves)
+          jumpToMove(originalMoves.length, { resetBranch: true })
+          break
+        default:
+          return
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [moves, currentBranch, originalMoves])
+
   // Firebase
   const firebaseGameId = undefined // TODO: originalMoves.length === 0 ? 'Pf2JJAfk3Bv6smP5MC01' : undefined
   const db = getFirestore()
@@ -166,8 +201,8 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
     const branchSlice = resetBranch
       ? originalMoves
       : originalMoves.length > 1 && originalMoves[1]?.state === 'swap'
-      ? [...originalMoves.slice(0, 2), ...currentBranch.slice(2, moveNumber)]
-      : currentBranch.slice(0, moveNumber)
+        ? [...originalMoves.slice(0, 2), ...currentBranch.slice(2, moveNumber)]
+        : currentBranch.slice(0, moveNumber)
     const { newMoves, newTiles } = branchSlice.reduce<{ newMoves: Move[]; newTiles: Tile[] }>(
       ({ newMoves, newTiles }, move) => computeMove(move, { moves: newMoves, tiles: newTiles }),
       {
@@ -211,8 +246,8 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
         ? tile.nodes.filter((n) => n.state === 'first').length >= tile.nodes.length / 2
           ? 'first'
           : tile.nodes.filter((n) => n.state === 'second').length >= tile.nodes.length / 2
-          ? 'second'
-          : tile.state
+            ? 'second'
+            : tile.state
         : tile.state,
   })
 
@@ -298,7 +333,7 @@ export function GameBoard({ boardSize, initialState }: GameBoardProps) {
       </div>
       <ol className="move-list">
         {moves.map((move, i) => (
-          <li key={i} onClick={() => (jumpToMove(i + 1))}>
+          <li key={i} onClick={() => jumpToMove(i + 1)}>
             {isSpecialMove(move)
               ? move.state
               : getMoveCoordinateString(move, boardSize, initialState?.origin)}
