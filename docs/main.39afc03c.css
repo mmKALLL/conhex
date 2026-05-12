@@ -1,0 +1,62 @@
+#app {
+  max-width: min(100%, 600px);
+  margin: 0 auto;
+}
+
+h1,
+h2,
+h3 {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 0.8rem;
+}
+
+h2,
+h3 {
+  margin-bottom: 3rem;
+}
+
+section {
+  margin-bottom: 0.5rem;
+}
+
+.no-select {
+  user-select: none;
+}
+
+.game-screen {
+  margin-top: max(2rem, 5vh);
+}
+
+.game-board {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+}
+
+.move-list {
+  cursor: pointer;
+  min-width: 3rem;
+  margin: 0 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial, sans-serif;
+  font-weight: 400;
+}
+
+.board-buttons {
+  padding: 1rem 0;
+  display: flex;
+  justify-content: space-between;
+}
+.board-buttons * {
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  color: black;
+}
+
+.footer {
+  margin-top: 4rem;
+}
+
+/*# sourceMappingURL=/main.39afc03c.css.map */
